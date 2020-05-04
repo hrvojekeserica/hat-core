@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Introduction &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Libraries" href="libraries/index.html" />
+    <link rel="prev" title="Content" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="libraries/index.html" title="Libraries"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Content"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Hat Core Documentation  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Hat Open is open-source framework of tools and libraries for developing
+applications used for remote monitoring, control and management of
+intelligent electronic devices such as IoT devices, PLCs, industrial
+automation or home automation systems.</p>
+<p>Hat Core is part of Hat Open providing collection of components and libraries
+on which Hat Open system is based.</p>
+<p>Development of Hat Open and associated repositories is sponsored by
+Končar - Power Plant and Electric Traction Engineering Inc.
+(Končar KET - <a class="reference external" href="https://www.koncar-ket.hr">https://www.koncar-ket.hr</a>).</p>
+<p>For more information see:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Hat Open homepage - <code class="docutils literal notranslate"><span class="pre">in</span> <span class="pre">development</span></code></p></li>
+<li><p>Hat Core homepage - <a class="reference external" href="https://core.hat-open.com">https://core.hat-open.com</a></p></li>
+<li><p>Hat Core documentation - <a class="reference external" href="https://core.hat-open.com/docs">https://core.hat-open.com/docs</a></p></li>
+<li><p>Hat Core git repository - <a class="reference external" href="https://github.com/hat-open/hat-core.git">https://github.com/hat-open/hat-core.git</a></p></li>
+<li><p>Hat Core issues - <a class="reference external" href="https://github.com/hat-open/hat-core/issues">https://github.com/hat-open/hat-core/issues</a></p></li>
+</ul>
+</div></blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This project is currently in state of active development. Features,
+functionality and API are unstable.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Hat Open consists of multiple interconnected parts. Each part implements a
+specific functionality. For easier reusability, provided implementation is
+split into multiple packages:</p>
+<div class="section" id="python-packages">
+<h3>Python packages<a class="headerlink" href="#python-packages" title="Permalink to this headline">¶</a></h3>
+<p>Python packages require Python 3.8 and can be installed with <cite>pip</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install &lt;package-name&gt;
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">package-name</span></code> is one of following:</p>
+<blockquote>
+<div><ul>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-util">hat-util</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/libraries/util.html">util docs</a>)</p>
+<blockquote>
+<div><p>Utility module</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-peg">hat-peg</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/libraries/peg.html">peg docs</a>)</p>
+<blockquote>
+<div><p>Parsing expression grammar</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-sbs">hat-sbs</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/libraries/sbs.html">sbs docs</a>)</p>
+<blockquote>
+<div><p>Chatter communication protocol</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-chatter">hat-chatter</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/libraries/chatter.html">chatter docs</a>)</p>
+<blockquote>
+<div><p>Simple binary serialization</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-juggler">hat-juggler</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/libraries/juggler.html">juggler docs</a>)</p>
+<blockquote>
+<div><p>Juggler communication protocol</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-duktape">hat-duktape</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/libraries/duktape.html">duktape docs</a>)</p>
+<blockquote>
+<div><p>Python Duktape JS wrapper</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-sqlite3">hat-sqlite3</a></p>
+<blockquote>
+<div><p>Hat specific sqlite3 build</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-drivers">hat-drivers</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/libraries/drivers/index.html">drivers docs</a>)</p>
+<blockquote>
+<div><p>Communication drivers</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-orchestrator">hat-orchestrator</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/components/orchestrator.html">orchestrator docs</a>)</p>
+<blockquote>
+<div><p>Simple cross-platform daemon/service manager</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-monitor">hat-monitor</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/components/monitor.html">monitor docs</a>)</p>
+<blockquote>
+<div><p>Redundancy and service discovery server</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-event">hat-event</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/components/event/index.html">event docs</a>)</p>
+<blockquote>
+<div><p>Event pub/sub communication and storage</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-gateway">hat-gateway</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/components/gateway/index.html">gateway docs</a>)</p>
+<blockquote>
+<div><p>Remote communication device gateway</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-gui">hat-gui</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/components/gui/index.html">gui docs</a>)</p>
+<blockquote>
+<div><p>GUI server</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://pypi.org/project/hat-translator">hat-translator</a>
+(<a class="reference external" href="https://core.hat-open.com/docs/components/translator.html">translator docs</a>)</p>
+<blockquote>
+<div><p>Configuration transformation interface</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="javascript-packages">
+<h3>JavaScript packages<a class="headerlink" href="#javascript-packages" title="Permalink to this headline">¶</a></h3>
+<p>JavaScript packages can be installed with <cite>npm</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ npm install &lt;package-name&gt;
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">package-name</span></code> is one of following:</p>
+<blockquote>
+<div><ul>
+<li><p><a class="reference external" href="https://www.npmjs.com/package/&#64;hat-core/util">&#64;hat-core/util</a></p>
+<blockquote>
+<div><p>Utility module</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://www.npmjs.com/package/&#64;hat-core/renderer">&#64;hat-core/renderer</a></p>
+<blockquote>
+<div><p>Virtual DOM renderer</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://www.npmjs.com/package/&#64;hat-core/future">&#64;hat-core/future</a></p>
+<blockquote>
+<div><p>Async Future implementation</p>
+</div></blockquote>
+</li>
+<li><p><a class="reference external" href="https://www.npmjs.com/package/&#64;hat-core/juggler">&#64;hat-core/juggler</a></p>
+<blockquote>
+<div><p>Juggler client library</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="build">
+<h2>Build<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h2>
+<p>Build tool used for Hat is pydoit (<cite>http://pydoit.org/</cite>). It can be installed
+with <cite>pip</cite> by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install doit
+</pre></div>
+</div>
+<p>For listing available doit tasks, use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ doit list
+</pre></div>
+</div>
+<p>Default task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ doit
+</pre></div>
+</div>
+<p>creates <cite>dist</cite> folder containing built packages.</p>
+<div class="section" id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<p>Package managers used for managing dependencies:</p>
+<blockquote>
+<div><ul>
+<li><p>pacman</p>
+<blockquote>
+<div><p>Package manager of Arch linux distribution. Available on
+Windows as part of <cite>msys2</cite> (<a class="reference external" href="http://www.msys2.org/">http://www.msys2.org/</a>).</p>
+</div></blockquote>
+</li>
+<li><p>pip</p>
+<blockquote>
+<div><p>Package manager available as part of CPython installation.</p>
+</div></blockquote>
+</li>
+<li><p>yarn</p>
+<blockquote>
+<div><p>Package manager for NodeJS.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>List of all dependencies for building and running hat components is available
+in:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>requirements.pacman.win.txt (windows only)</p></li>
+<li><p>requirements.pacman.linux.txt (archlinux only)</p></li>
+<li><p>requirements.pip.txt</p></li>
+<li><p>package.json</p></li>
+</ul>
+</div></blockquote>
+<p>Python code targets CPython 3.8 only.</p>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Documentation can be built with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ doit docs
+</pre></div>
+</div>
+<p>which creates <cite>build/docs</cite> folder containing documentation.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libraries/index.html">Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Content</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="libraries/index.html"
+                        title="next chapter">Libraries</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="libraries/index.html" title="Libraries"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Content"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Hat Core Documentation  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Duktape wrapper &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Drivers" href="drivers/index.html" />
+    <link rel="prev" title="Juggler communication protocol" href="juggler.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="drivers/index.html" title="Drivers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="juggler.html" title="Juggler communication protocol"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Libraries</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="duktape-wrapper">
+<h1>Duktape wrapper<a class="headerlink" href="#duktape-wrapper" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-hat.duktape">
+<span id="python-implementation"></span><h2>Python implementation<a class="headerlink" href="#module-hat.duktape" title="Permalink to this headline">¶</a></h2>
+<p>Python ctypes wrapper for duktape JavaScript interpreter</p>
+<dl class="py attribute">
+<dt id="hat.duktape.default">
+<code class="sig-prename descclassname">hat.duktape.</code><code class="sig-name descname">default</code><a class="headerlink" href="#hat.duktape.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>default duktape instanc</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="peg.html#hat.peg.Optional" title="hat.peg.Optional">Optional</a>[<a class="reference internal" href="#hat.duktape.Lib" title="hat.duktape.Lib">Lib</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.duktape.default_duktape_path">
+<code class="sig-prename descclassname">hat.duktape.</code><code class="sig-name descname">default_duktape_path</code><a class="headerlink" href="#hat.duktape.default_duktape_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>default duktape library path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>pathlib.Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.duktape.init">
+<code class="sig-prename descclassname">hat.duktape.</code><code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.duktape.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize default ducktape instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference internal" href="peg.html#hat.peg.Optional" title="hat.peg.Optional"><em>Optional</em></a><em>[</em><em>path</em><em>]</em>) – dynamic library file path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Lib</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.duktape.Lib">
+<em class="property">class </em><code class="sig-prename descclassname">hat.duktape.</code><code class="sig-name descname">Lib</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.duktape.Lib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Ducktape library</p>
+<p>Low-level interface to ducktape directly mapping ducktape functions and
+constants to python. Only parts used by <a class="reference internal" href="#hat.duktape.Interpreter" title="hat.duktape.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interpreter</span></code></a> are
+exposed. For detailed documentation see <a class="reference external" href="https://duktape.org/api.html">https://duktape.org/api.html</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference internal" href="peg.html#hat.peg.Optional" title="hat.peg.Optional"><em>Optional</em></a><em>[</em><em>path</em><em>]</em>) – dynamic library file path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.duktape.Interpreter">
+<em class="property">class </em><code class="sig-prename descclassname">hat.duktape.</code><code class="sig-name descname">Interpreter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lib</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.duktape.Interpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>JavaScript interpreter</p>
+<p>High-level python wrapper to duktape JavaScript interpreter.</p>
+<p>Current implementation caches all function objects for preventing
+garbage collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lib</strong> (<a class="reference internal" href="peg.html#hat.peg.Optional" title="hat.peg.Optional"><em>Optional</em></a><em>[</em><a class="reference internal" href="#hat.duktape.Lib" title="hat.duktape.Lib"><em>Lib</em></a><em>]</em>) – duktape library</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="hat.duktape.Interpreter.eval">
+<code class="sig-name descname">eval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">code</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.duktape.Interpreter.eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate JS code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>code</strong> (<em>str</em>) – JS code</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.duktape.Interpreter.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.duktape.Interpreter.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get global value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – global name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.duktape.Interpreter.set">
+<code class="sig-name descname">set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.duktape.Interpreter.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set global value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – global name</p></li>
+<li><p><strong>value</strong> (<em>Any</em>) – value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Libraries</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="util.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="peg.html">Parsing expression grammar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbs.html">Simple binary serialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chatter.html">Chatter communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="juggler.html">Juggler communication protocol</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Duktape wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drivers/index.html">Drivers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="juggler.html"
+                        title="previous chapter">Juggler communication protocol</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="drivers/index.html"
+                        title="next chapter">Drivers</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="drivers/index.html" title="Drivers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="juggler.html" title="Juggler communication protocol"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Libraries</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Translator &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Orchestrator" href="orchestrator.html" />
+    <link rel="prev" title="Components" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="orchestrator.html" title="Orchestrator"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Components"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Components</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="translator">
+<h1>Translator<a class="headerlink" href="#translator" title="Permalink to this headline">¶</a></h1>
+<p>Translator is simple command line interface for configuration transformation.
+It transforms single input configuration to single output configuration.
+Configurations are represented by JSON data encoded in JSON or YAML format.
+Each configuration structure is identified by unique identifier (configuration
+type) and optional JSON schema. Translator reads input configuration from
+<cite>stdin</cite> and outputs resulting configuration to <cite>stdout</cite>. If error during
+transformation occurs, information is outputted to <cite>stderr</cite> and program
+finishes with non zero return code. Translator comes with set of predefined
+translations which can be extended with additional definitions
+provided as command line arguments.</p>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
+<p>By installing Translator from <cite>hat-translator</cite> package, executable
+<cite>hat-translator</cite> becomes available and can be used for starting this
+component.</p>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: hat-translator [-h] {translate,list} ...
+
+positional arguments:
+  {translate,list}
+    translate       translate stdin input to stdout output
+    list            list available translations
+
+optional arguments:
+  -h, --help        show this help message and exit
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: hat-translator list [-h] [--module [name [name ...]]]
+                           [--additional-json-schemas-path [path [path ...]]]
+                           [--format format]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --module [name [name ...]]
+                        additional translators module name
+  --additional-json-schemas-path [path [path ...]]
+                        additional json schemas paths
+  --format format       input/output format: &#39;yaml&#39; or &#39;json&#39; (default &#39;yaml&#39;)
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: hat-translator translate [-h] [--module [name [name ...]]]
+                                [--additional-json-schemas-path [path [path ...]]]
+                                [--format format] --input-type type
+                                --output-type type
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --module [name [name ...]]
+                        additional translators module name
+  --additional-json-schemas-path [path [path ...]]
+                        additional json schemas paths
+  --format format       input/output format: &#39;yaml&#39; or &#39;json&#39; (default &#39;yaml&#39;)
+  --input-type type     input configuration type
+  --output-type type    output configuration type
+</pre></div>
+</div>
+</div></blockquote>
+<p>If multiple modules provide transformation for same
+<cite>(input-type, output-type)</cite> pair, last transformation (from list of command
+line module arguments) is used.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<ul class="simple">
+<li><p>consider adding additional output subtype label instead of encoding
+specific translation identification as part of output type
+(example: “input: editor; output: event_primary” vs
+“input: editor; output: event; variant: primary”)</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-hat.translator.common">
+<span id="python-implementation"></span><h2>Python implementation<a class="headerlink" href="#module-hat.translator.common" title="Permalink to this headline">¶</a></h2>
+<p>Translator definition</p>
+<dl class="py attribute">
+<dt id="hat.translator.common.Translate">
+<code class="sig-prename descclassname">hat.translator.common.</code><code class="sig-name descname">Translate</code><a class="headerlink" href="#hat.translator.common.Translate" title="Permalink to this definition">¶</a></dt>
+<dd><p>translate function type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.translator.common.Translator">
+<em class="property">class </em><code class="sig-prename descclassname">hat.translator.common.</code><code class="sig-name descname">Translator</code><a class="headerlink" href="#hat.translator.common.Translator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Translator definition</p>
+<p>Translators are dynamicly loaded from python modules that contain:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>translators (List[Translator]): translators</p></li>
+</ul>
+</div></blockquote>
+<p>Create new instance of Translator(input_type, input_schema, output_type, output_schema, translate)</p>
+<dl class="py attribute">
+<dt id="hat.translator.common.Translator.input_schema">
+<code class="sig-name descname">input_schema</code><a class="headerlink" href="#hat.translator.common.Translator.input_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>input JSON schema identifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../libraries/peg.html#hat.peg.Optional" title="hat.peg.Optional">Optional</a>[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.translator.common.Translator.input_type">
+<code class="sig-name descname">input_type</code><a class="headerlink" href="#hat.translator.common.Translator.input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>input configuration type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.translator.common.Translator.output_schema">
+<code class="sig-name descname">output_schema</code><a class="headerlink" href="#hat.translator.common.Translator.output_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>output JSON schema identifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../libraries/peg.html#hat.peg.Optional" title="hat.peg.Optional">Optional</a>[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.translator.common.Translator.output_type">
+<code class="sig-name descname">output_type</code><a class="headerlink" href="#hat.translator.common.Translator.output_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>output configuration type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.translator.common.Translator.translate">
+<code class="sig-name descname">translate</code><a class="headerlink" href="#hat.translator.common.Translator.translate" title="Permalink to this definition">¶</a></dt>
+<dd><p>translate function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Translate</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-hat.translator.main"></span><p>Translator main</p>
+<dl class="py attribute">
+<dt id="hat.translator.main.builtin_translators">
+<code class="sig-prename descclassname">hat.translator.main.</code><code class="sig-name descname">builtin_translators</code><a class="headerlink" href="#hat.translator.main.builtin_translators" title="Permalink to this definition">¶</a></dt>
+<dd><p>builtin translators</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#hat.translator.common.Translator" title="hat.translator.common.Translator">hat.translator.common.Translator</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.translator.main.main">
+<code class="sig-prename descclassname">hat.translator.main.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.translator.main.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../libraries/index.html">Libraries</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Translator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="orchestrator.html">Orchestrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitor.html">Monitor Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event/index.html">Event Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gateway/index.html">Gateway</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui/index.html">GUI Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Components</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="orchestrator.html"
+                        title="next chapter">Orchestrator</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="orchestrator.html" title="Orchestrator"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Components"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Components</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

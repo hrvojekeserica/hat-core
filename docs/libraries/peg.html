@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Parsing expression grammar &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Simple binary serialization" href="sbs.html" />
+    <link rel="prev" title="Utility functions" href="util.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="sbs.html" title="Simple binary serialization"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="Utility functions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Libraries</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="parsing-expression-grammar">
+<h1>Parsing expression grammar<a class="headerlink" href="#parsing-expression-grammar" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-hat.peg">
+<span id="python-implementation"></span><h2>Python implementation<a class="headerlink" href="#module-hat.peg" title="Permalink to this headline">¶</a></h2>
+<p>PEG Parser</p>
+<p>Implementation of PEG parser as described in paper “Parsing Expression
+Grammars: A Recognition-Based Syntactic Foundation” (Bryan Ford, 2004).
+PEG’s grammar itself can be defined by PEG grammar:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Hierarchical syntax
+Grammar    &lt;- Spacing Definition+ EndOfFile
+Definition &lt;- Identifier LEFTARROW Expression
+Expression &lt;- Sequence (SLASH Sequence)*
+Sequence   &lt;- Prefix*
+Prefix     &lt;- (AND / NOT)? Suffix
+Suffix     &lt;- Primary (QUESTION / STAR / PLUS)?
+Primary    &lt;- Identifier !LEFTARROW
+            / OPEN Expression CLOSE
+            / Literal
+            / Class
+            / DOT
+
+# Lexical syntax
+Identifier &lt;- IdentStart IdentCont* Spacing
+IdentStart &lt;- [a-zA-Z_]
+IdentCont  &lt;- IdentStart / [0-9]
+Literal    &lt;- [&#39;] (![&#39;] Char)* [&#39;] Spacing
+            / [&quot;] (![&quot;] Char)* [&quot;] Spacing
+Class      &lt;- &#39;[&#39; (!&#39;]&#39; Range)* &#39;]&#39; Spacing
+Range      &lt;- Char &#39;-&#39; Char / Char
+Char       &lt;- &#39;\\&#39; [nrt&#39;&quot;\[\]\\]
+            / &#39;\\&#39; &#39;x&#39; Hex Hex
+            / !&#39;\\&#39; .
+Hex        &lt;- [0-9a-fA-F]
+
+LEFTARROW  &lt;- &#39;&lt;-&#39; Spacing
+SLASH      &lt;- &#39;/&#39; Spacing
+AND        &lt;- &#39;&amp;&#39; Spacing
+NOT        &lt;- &#39;!&#39; Spacing
+QUESTION   &lt;- &#39;?&#39; Spacing
+STAR       &lt;- &#39;*&#39; Spacing
+PLUS       &lt;- &#39;+&#39; Spacing
+OPEN       &lt;- &#39;(&#39; Spacing
+CLOSE      &lt;- &#39;)&#39; Spacing
+DOT        &lt;- &#39;.&#39; Spacing
+
+Spacing    &lt;- (Space / Comment)*
+Comment    &lt;- &#39;#&#39; (!EndOfLine .)* EndOfLine
+Space      &lt;- &#39; &#39; / &#39;\t&#39; / EndOfLine
+EndOfLine  &lt;- &#39;\r\n&#39; / &#39;\n&#39; / &#39;\r&#39;
+EndOfFile  &lt;- !.
+</pre></div>
+</div>
+<p>Example usage of PEG parser:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">hat.peg</span>
+
+<span class="n">grammar</span> <span class="o">=</span> <span class="n">hat</span><span class="o">.</span><span class="n">peg</span><span class="o">.</span><span class="n">Grammar</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    Expr    &lt;- Sum</span>
+<span class="s1">    Sum     &lt;- Product ((&#39;+&#39; / &#39;-&#39;) Product)*</span>
+<span class="s1">    Product &lt;- Value ((&#39;*&#39; / &#39;/&#39;) Value)*</span>
+<span class="s1">    Value   &lt;- Spacing ([0-9]+ / &#39;(&#39; Expr &#39;)&#39;) Spacing</span>
+<span class="s1">    Spacing &lt;- &#39; &#39;*</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;Expr&#39;</span><span class="p">)</span>
+<span class="n">ast</span> <span class="o">=</span> <span class="n">grammar</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;1 + 2 * 3 + (4 - 5) * 6 + 7&#39;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">hat</span><span class="o">.</span><span class="n">peg</span><span class="o">.</span><span class="n">walk_ast</span><span class="p">(</span><span class="n">ast</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;Expr&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="s1">&#39;Sum&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+        <span class="p">(</span><span class="k">lambda</span> <span class="n">acc</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">acc</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span> <span class="k">else</span> <span class="n">acc</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">::</span><span class="mi">2</span><span class="p">]),</span>
+        <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+    <span class="s1">&#39;Product&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+        <span class="p">(</span><span class="k">lambda</span> <span class="n">acc</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">acc</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span> <span class="k">else</span> <span class="n">acc</span> <span class="o">/</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">::</span><span class="mi">2</span><span class="p">]),</span>
+        <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+    <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;(&#39;</span> <span class="k">else</span>
+                           <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])))})</span>
+<span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">8</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt id="hat.peg.Node">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Node</code><a class="headerlink" href="#hat.peg.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Abstract syntax tree node.</p>
+<p>Node names are identifiers of parser’s definitions and values
+are other nodes or Data representing matched <cite>Literal</cite>, <cite>Class</cite> or
+<cite>Dot</cite> leafs.</p>
+<p>Create new instance of Node(name, value)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Node.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#hat.peg.Node.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>node name (production definition identifier)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.peg.Node.value">
+<code class="sig-name descname">value</code><a class="headerlink" href="#hat.peg.Node.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>subnodes or leafs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[Union[<a class="reference internal" href="#hat.peg.Node" title="hat.peg.Node">Node</a>,Data]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.peg.walk_ast">
+<code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">walk_ast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">actions</span></em>, <em class="sig-param"><span class="n">default_action</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.walk_ast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple depth-first abstract syntax tree parser.</p>
+<p>Actions are key value pairs where keys represent node names and values
+are callables that should be called for appropriate node. Each callable
+receives matched node and list of results from recursively applying
+this function on child nodes. For nodes which name doesn’t match any
+action, default action is used. If default action is not defined and node
+name doesn’t match action, result is None and recursion is stopped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actions</strong> (<em>Dict</em><em>[</em><em>str</em><em>,</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#hat.peg.Node" title="hat.peg.Node"><em>Node</em></a><em>,</em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em><em>,</em><em>Any</em><em>]</em><em>]</em>) – actions</p></li>
+<li><p><strong>default_action</strong> (<a class="reference internal" href="#hat.peg.Optional" title="hat.peg.Optional"><em>Optional</em></a><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#hat.peg.Node" title="hat.peg.Node"><em>Node</em></a><em>,</em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em><em>,</em><em>Any</em><em>]</em><em>]</em>) – default action</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Grammar">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Grammar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">definitions</span></em>, <em class="sig-param"><span class="n">starting</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Grammar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>PEG Grammar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>definitions</strong> (<em>Union</em><em>[</em><em>str</em><em>,</em><em>Dict</em><em>[</em><em>str</em><em>,</em><em>Expression</em><em>]</em><em>]</em>) – grammar definitions</p></li>
+<li><p><strong>starting</strong> (<em>str</em>) – starting definition name</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="hat.peg.Grammar.definitions">
+<em class="property">property </em><code class="sig-name descname">definitions</code><a class="headerlink" href="#hat.peg.Grammar.definitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>definitions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict[str,Expression]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.peg.Grammar.starting">
+<em class="property">property </em><code class="sig-name descname">starting</code><a class="headerlink" href="#hat.peg.Grammar.starting" title="Permalink to this definition">¶</a></dt>
+<dd><p>starting definition name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.peg.Grammar.parse">
+<code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">debug_cb</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Grammar.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse input data.</p>
+<p><cite>debug_cb</cite> is optional function which can be used for monitoring and
+debugging parse steps. It is called each time named definition
+is successfully or unsuccessfully matched. This function receives
+match result and match call stack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Data</em>) – input data</p></li>
+<li><p><strong>debug_cb</strong> (<a class="reference internal" href="#hat.peg.Optional" title="hat.peg.Optional"><em>Optional</em></a><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#hat.peg.MatchResult" title="hat.peg.MatchResult"><em>MatchResult</em></a><em>,</em><em>MatchCallStack</em><em>]</em><em>,</em><em>None</em><em>]</em><em>]</em>) – debug callback</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Node</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>Exception</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Sequence">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Sequence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expressions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Sequence(expressions,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Sequence.expressions">
+<code class="sig-name descname">expressions</code><a class="headerlink" href="#hat.peg.Sequence.expressions" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[Expression]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Choice">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Choice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expressions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Choice(expressions,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Choice.expressions">
+<code class="sig-name descname">expressions</code><a class="headerlink" href="#hat.peg.Choice.expressions" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[Expression]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Not">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Not</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expression</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Not" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Not(expression,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Not.expression">
+<code class="sig-name descname">expression</code><a class="headerlink" href="#hat.peg.Not.expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expression</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.And">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">And</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expression</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.And" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of And(expression,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.And.expression">
+<code class="sig-name descname">expression</code><a class="headerlink" href="#hat.peg.And.expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expression</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.OneOrMore">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">OneOrMore</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expression</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.OneOrMore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of OneOrMore(expression,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.OneOrMore.expression">
+<code class="sig-name descname">expression</code><a class="headerlink" href="#hat.peg.OneOrMore.expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expression</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.ZeroOrMore">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">ZeroOrMore</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expression</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.ZeroOrMore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of ZeroOrMore(expression,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.ZeroOrMore.expression">
+<code class="sig-name descname">expression</code><a class="headerlink" href="#hat.peg.ZeroOrMore.expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expression</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Optional">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Optional</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expression</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Optional" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Optional(expression,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Optional.expression">
+<code class="sig-name descname">expression</code><a class="headerlink" href="#hat.peg.Optional.expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expression</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Identifier">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Identifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Identifier(value,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Identifier.value">
+<code class="sig-name descname">value</code><a class="headerlink" href="#hat.peg.Identifier.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Literal">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Literal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Literal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Literal(value,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Literal.value">
+<code class="sig-name descname">value</code><a class="headerlink" href="#hat.peg.Literal.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>bytes</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Class">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Class</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.Class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Class(values,)</p>
+<dl class="py attribute">
+<dt id="hat.peg.Class.values">
+<code class="sig-name descname">values</code><a class="headerlink" href="#hat.peg.Class.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>List[Union[int,Tuple[int,int]]]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.Dot">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">Dot</code><a class="headerlink" href="#hat.peg.Dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Dot()</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.MatchResult">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">MatchResult</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">rest</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.MatchResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of MatchResult(node, rest)</p>
+<dl class="py attribute">
+<dt id="hat.peg.MatchResult.node">
+<code class="sig-name descname">node</code><a class="headerlink" href="#hat.peg.MatchResult.node" title="Permalink to this definition">¶</a></dt>
+<dd><p>None if match failed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hat.peg.Optional" title="hat.peg.Optional">Optional</a>[<a class="reference internal" href="#hat.peg.Node" title="hat.peg.Node">Node</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.peg.MatchResult.rest">
+<code class="sig-name descname">rest</code><a class="headerlink" href="#hat.peg.MatchResult.rest" title="Permalink to this definition">¶</a></dt>
+<dd><p>remaining input data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.peg.MatchCallFrame">
+<em class="property">class </em><code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">MatchCallFrame</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.MatchCallFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of MatchCallFrame(name, data)</p>
+<dl class="py attribute">
+<dt id="hat.peg.MatchCallFrame.data">
+<code class="sig-name descname">data</code><a class="headerlink" href="#hat.peg.MatchCallFrame.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>input data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.peg.MatchCallFrame.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#hat.peg.MatchCallFrame.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>definition name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.peg.console_debug_cb">
+<code class="sig-prename descclassname">hat.peg.</code><code class="sig-name descname">console_debug_cb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">call_stack</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.peg.console_debug_cb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple console debugger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> (<a class="reference internal" href="#hat.peg.MatchResult" title="hat.peg.MatchResult"><em>MatchResult</em></a>) – match result</p></li>
+<li><p><strong>call_stack</strong> (<em>MatchCallStack</em>) – match call stack</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Libraries</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="util.html">Utility functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parsing expression grammar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbs.html">Simple binary serialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chatter.html">Chatter communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="juggler.html">Juggler communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="duktape.html">Duktape wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drivers/index.html">Drivers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="util.html"
+                        title="previous chapter">Utility functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sbs.html"
+                        title="next chapter">Simple binary serialization</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="sbs.html" title="Simple binary serialization"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="Utility functions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Libraries</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

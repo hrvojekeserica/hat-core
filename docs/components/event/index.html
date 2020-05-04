@@ -1,0 +1,641 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Event Server &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Dummy module" href="modules/dummy.html" />
+    <link rel="prev" title="Monitor Server" href="../monitor.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="modules/dummy.html" title="Dummy module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../monitor.html" title="Monitor Server"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Components</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="event-server">
+<span id="event"></span><h1>Event Server<a class="headerlink" href="#event-server" title="Permalink to this headline">¶</a></h1>
+<p>Event Server is a central component responsible for registering, processing,
+storing and providing access to events.</p>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
+<p>By installing Event Server from <cite>hat-event</cite> package, executable <cite>hat-event</cite>
+becomes available and can be used for starting this component.</p>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Traceback (most recent call last):
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 193, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 86, in _run_code
+    exec(code, run_globals)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/event/server/__main__.py&quot;, line 3, in &lt;module&gt;
+    from hat.event.server.main import main
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/event/server/main.py&quot;, line 23, in &lt;module&gt;
+    import hat.event.common
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/event/common.py&quot;, line 9, in &lt;module&gt;
+    from hat import chatter
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/chatter.py&quot;, line 31, in &lt;module&gt;
+    sbs_repo = sbs.Repository.from_json(Path(__file__).parent /
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/sbs/repository.py&quot;, line 86, in from_json
+    data = json.decode_file(data)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/util/json.py&quot;, line 187, in decode_file
+    with open(path, &#39;r&#39;, encoding=&#39;utf-8&#39;) as f:
+FileNotFoundError: [Errno 2] No such file or directory: &#39;/home/runner/work/hat-core/hat-core/src_py/hat/chatter_sbs_repo.json&#39;
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id1">
+<h2>Event<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Event is a generic data structure used for communication and storage of relevant
+changes happening through time in a Hat system. For example, event can represent
+a data change triggered by a device outside of the system, or an inner
+notification created by a component inside the system. Each event is immutable
+and uniquely identified by its event id. Event Server is the only component
+responsible for creating events - all other components shall request Event
+Server to create a new event.</p>
+<p>Event data structure:</p>
+<blockquote>
+<div><ul>
+<li><p>id</p>
+<blockquote>
+<div><p>A unique Event identifier containing Event Server identifier and event
+instance identifier. This property is always set by the server.</p>
+</div></blockquote>
+</li>
+<li><p>type</p>
+<blockquote>
+<div><p>Type is a user (client) defined list of strings. Semantics of the
+list’s elements and their position in the list is determined by the user
+and is not predefined by the Event server. This list should be used as
+the main identifier of the occurred event’s type. Each component
+registering an event should have its own naming convention defined
+which does not collide with other components’ naming conventions. This
+property is set by the user while registering an event. Subtypes
+<code class="docutils literal notranslate"><span class="pre">?</span></code> and <code class="docutils literal notranslate"><span class="pre">*</span></code> are not allowed as parts of event type.</p>
+<p>When used in querying and subscription, this property has additional
+semantics. Any string in the list can be replaced with <code class="docutils literal notranslate"><span class="pre">?</span></code> while the
+last string can also be replaced with <code class="docutils literal notranslate"><span class="pre">*</span></code>. Replacements must
+substitute an entire string in the list. The semantics of these
+replacements are:</p>
+<blockquote>
+<div><ul>
+<li><p>The string <code class="docutils literal notranslate"><span class="pre">?</span></code></p>
+<blockquote>
+<div><p>is matched with a single arbitrary string.</p>
+</div></blockquote>
+</li>
+<li><p>The string <code class="docutils literal notranslate"><span class="pre">*</span></code></p>
+<blockquote>
+<div><p>is matched with any number (zero or more) of arbitrary strings.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</li>
+<li><p>timestamp</p>
+<blockquote>
+<div><p>This property determines the moment when the event was registered on
+the server. It is always set by the server.</p>
+</div></blockquote>
+</li>
+<li><p>source timestamp</p>
+<blockquote>
+<div><p>This property is optional. It represents the moment the Event occurred
+as detected by the source of the Event. It is always set by the client.</p>
+</div></blockquote>
+</li>
+<li><p>payload</p>
+<blockquote>
+<div><p>This property is optional. It can be used to provide additional data
+bound to an event. The payload property is always set by the client
+registering the event. Its contents are determined by the Event’s
+<strong>type</strong> and can be decoded by clients who understand Events of that
+<strong>type</strong>. Payload can be encoded as binary data, JSON data or SBS
+encoded data. Event server doesn’t decode payload while receiving
+event requests, storing events or providing query results. Payload can
+be optionally decoded by Event Server’s modules.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="server-client-communication">
+<h2>Server - Client communication<a class="headerlink" href="#server-client-communication" title="Permalink to this headline">¶</a></h2>
+<p>Communication between server and client is based on chatter communication
+utilizing following messages:</p>
+<blockquote>
+<div><table class="docutils align-default">
+<colgroup>
+<col style="width: 39%" />
+<col style="width: 14%" />
+<col style="width: 12%" />
+<col style="width: 14%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" rowspan="2"><p>Message</p></th>
+<th class="head" colspan="3"><p>Conversation</p></th>
+<th class="head" rowspan="2"><p>Direction</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>First</p></th>
+<th class="head"><p>Last</p></th>
+<th class="head"><p>Token</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p>MsgSubscribe</p></td>
+<td><p>T</p></td>
+<td><p>T</p></td>
+<td><p>T</p></td>
+<td><p>c &gt; s</p></td>
+</tr>
+<tr class="row-even"><td><p>MsgNotify</p></td>
+<td><p>T</p></td>
+<td><p>T</p></td>
+<td><p>T</p></td>
+<td><p>s &gt; c</p></td>
+</tr>
+<tr class="row-odd"><td><p>MsgRegisterReq</p></td>
+<td><p>T</p></td>
+<td><p>T/F</p></td>
+<td><p>T</p></td>
+<td><p>c &gt; s</p></td>
+</tr>
+<tr class="row-even"><td><p>MsgRegisterRes</p></td>
+<td><p>F</p></td>
+<td><p>T</p></td>
+<td><p>T</p></td>
+<td><p>s &gt; c</p></td>
+</tr>
+<tr class="row-odd"><td><p>MsgQueryReq</p></td>
+<td><p>T</p></td>
+<td><p>F</p></td>
+<td><p>T</p></td>
+<td><p>c &gt; s</p></td>
+</tr>
+<tr class="row-even"><td><p>MsgQueryRes</p></td>
+<td><p>F</p></td>
+<td><p>T</p></td>
+<td><p>T</p></td>
+<td><p>s &gt; c</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Actions available to clients which are directly mapped to exchange of
+communication messages:</p>
+<blockquote>
+<div><ul>
+<li><p>subscribe</p>
+<blockquote>
+<div><p>A client can, at any time, subscribe to Events of certain types by
+sending a subscribe message (<cite>MsgSubscribe</cite>) to the server. After
+server receives subscribe message, it will spontaneously notify the
+client (by sending <cite>MsgNotify</cite>) whenever an Event occurs with the
+<strong>type</strong> matched to any <strong>type</strong> in the subscription message. Matching
+is done as described in event’s type property including the <code class="docutils literal notranslate"><span class="pre">?</span></code> and
+<code class="docutils literal notranslate"><span class="pre">*</span></code> options. A client can send as many subscribe messages as it
+wants, each new subscription message implicitly invalidates previous
+subscriptions. Initially, after new connection between server and
+client is established, client isn’t subscribed to any events. Both
+subscribe and notify messages can be sent at any time independently
+of other communication messages. Events that are notified by single
+<cite>MsgNotify</cite> are mutually unrelated.</p>
+</div></blockquote>
+</li>
+<li><p>register event</p>
+<blockquote>
+<div><p>A client can, at any time, send new request for event registration.
+Those register requests are sent as part of <cite>MsgRegisterReq</cite> message.
+Single <cite>MsgRegisterReq</cite> may contain an arbitrary number of registration
+requests which are all registered at the same time. Single register
+event contains event type; and optional source timestamp and payload.
+Upon receiving <cite>MsgRegisterReq</cite>, it is responsibility of a server to
+create new event for each register event. All events created based on a
+single <cite>MsgRegisterReq</cite> have the same timestamp. If a client doesn’t
+end chatter conversation (<cite>MsgRegisterReq</cite> last flag is false),
+once associated events are created server will respond with
+<cite>MsgRegisterRes</cite> and end conversation. For each register event in
+<cite>MsgRegisterReq</cite>, associated <cite>MsgRegisterRes</cite> contains newly created
+event, or information about event registration failure.</p>
+</div></blockquote>
+</li>
+<li><p>query events</p>
+<blockquote>
+<div><p>At any time, client can initiate new event query by sending
+<cite>MsgQueryReq</cite> message. Upon receiving query request, server will
+provide all available events that match query criteria as part
+of single <cite>MsgQueryRes</cite>. Single query request can contain multiple
+filter conditions which ALL must be met for all events provided to
+client as query result. Query request contains:</p>
+<ul>
+<li><p>ids - optional filter condition</p>
+<blockquote>
+<div><p>If set, only events with ids which are defined as part of filter
+condition are matched.</p>
+</div></blockquote>
+</li>
+<li><p>types - optional filter condition</p>
+<blockquote>
+<div><p>List of event types. If set, event type has to match at least one
+type from the list. Matching is done as defined in event’s <strong>type</strong>
+property description - including the <code class="docutils literal notranslate"><span class="pre">?</span></code> and <code class="docutils literal notranslate"><span class="pre">*</span></code> options.</p>
+</div></blockquote>
+</li>
+<li><p>from timestamp - optional filter condition</p>
+<blockquote>
+<div><p>If set, only events with <strong>timestamp</strong> greater than or equal are
+matched.</p>
+</div></blockquote>
+</li>
+<li><p>to timestamp - optional filter condition</p>
+<blockquote>
+<div><p>If set, only events with <strong>timestamp</strong> lower than or equal are
+matched.</p>
+</div></blockquote>
+</li>
+<li><p>from source timestamp - optional filter condition</p>
+<blockquote>
+<div><p>If set, only events with <strong>source timestamp</strong> defined, and greater
+than or equal, are matched.</p>
+</div></blockquote>
+</li>
+<li><p>to source timestamp - optional filter condition</p>
+<blockquote>
+<div><p>If set, only events with <strong>source timestamp</strong> defined, and lower
+than or equal, are matched.</p>
+</div></blockquote>
+</li>
+<li><p>payload - optional filter condition</p>
+<blockquote>
+<div><p>If set, only events with <strong>payload</strong> defined and whose <strong>payload</strong>
+is the same as the query’s <strong>payload</strong> are matched.</p>
+</div></blockquote>
+</li>
+<li><p>order</p>
+<blockquote>
+<div><p>Can be set to ‘ascending’ or ‘descending’. If set to ‘ascending’,
+matched Events will be returned ordered from the earliest
+to the latest dependent on their <strong>timestamp</strong> or
+<strong>source timestamp</strong> (this choice is determined by the <strong>order by</strong>
+property of the query). Earliest meaning lower timestamp, latest
+meaning greater timestamp. If set to descending the same logic
+applies, but the order is reversed.</p>
+</div></blockquote>
+</li>
+<li><p>order by</p>
+<blockquote>
+<div><p>Can be set to ‘timestamp’ or ‘source timestamp’. Ordering Events by
+‘source timestamp’ has events with ‘source timestamp’ undefined
+returned last in an arbitrary order.</p>
+</div></blockquote>
+</li>
+<li><p>unique type</p>
+<blockquote>
+<div><p>If set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, it determines whether the matched Events will
+contain only one event instance of the same type. With the query
+‘order’ set to ‘descending’, only one Event with the greatest
+<strong>timestamp</strong> or <strong>source timestamp</strong> will be matched. Setting the
+‘order’ to ‘ascending’ will match the Event with the lowest
+<strong>timestamp</strong> or <strong>source timestamp</strong>.</p>
+</div></blockquote>
+</li>
+<li><p>max results</p>
+<blockquote>
+<div><p>If set, limits the number of matched Events to this number. Matched
+Events are dependent on the query ‘order’ the same way as in
+‘unique type’.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="server-server-communication">
+<h2>Server - Server communication<a class="headerlink" href="#server-server-communication" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>define backend engine sync messages</p>
+</div>
+</div>
+<div class="section" id="components">
+<h2>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h2>
+<p>Event Server functionality can be defined by using the following components:</p>
+<p class="plantuml">
+<img src="../../_images/plantuml-823fa525b7674dd56ea096fcd6627007a5534207.png" alt="folder &quot;Component 1&quot; &lt;&lt;Component&gt;&gt; {
+    component &quot;Event Client&quot; as Client1
+}
+
+folder &quot;Component 2&quot; &lt;&lt;Component&gt;&gt; {
+    component &quot; Event Client&quot; as Client2
+}
+
+folder &quot;Event Server&quot; {
+    component Communication
+    component &quot;Module Engine&quot; as ModuleEngine
+    component &quot;Generic Module 1&quot; &lt;&lt;Module&gt;&gt; as Module1
+    component &quot;Generic Module 2&quot; &lt;&lt;Module&gt;&gt; as Module2
+    component &quot;Specialized Module Engine&quot; &lt;&lt;Module&gt;&gt; as SpecModuleEngine
+    component &quot;Specialized Module 1&quot; &lt;&lt;Specialized Module&gt;&gt; as SpecModule1
+    component &quot;Specialized Module 2&quot; &lt;&lt;Specialized Module&gt;&gt; as SpecModule2
+    component &quot;Backend Engine&quot; as BackendEngine
+    component &quot;Backend&quot; as Backend
+    component &quot;Backend 1&quot; &lt;&lt;Backend&gt;&gt; as Backend1
+    component &quot;Backend 2&quot; &lt;&lt;Backend&gt;&gt; as Backend2
+
+    interface subscribe
+    interface notify
+    interface register
+    interface query
+}
+
+folder &quot;Remote Event Server&quot; {
+    component &quot;Backend Engine&quot; as RemoteBackendEngine
+}
+
+database &quot;Database 1&quot; &lt;&lt;Database&gt;&gt; as Database1
+database &quot;Database 2&quot; &lt;&lt;Database&gt;&gt; as Database2
+
+Communication -- subscribe
+Communication -- notify
+Communication -- register
+Communication -- query
+
+subscribe &lt;-- Client1
+notify --&gt; Client1
+register &lt;-- Client1
+query &lt;-- Client1
+
+subscribe &lt;-- Client2
+notify --&gt; Client2
+register &lt;-- Client2
+query &lt;-- Client2
+
+ModuleEngine &lt;-&gt; Communication
+ModuleEngine --&gt; BackendEngine
+
+Module1 --o ModuleEngine
+Module2 --o ModuleEngine
+SpecModuleEngine --o ModuleEngine
+SpecModule1 --o SpecModuleEngine
+SpecModule2 --o SpecModuleEngine
+
+BackendEngine o-- Backend
+Backend &lt;|-- Backend1
+Backend &lt;|-- Backend2
+
+Backend1 --&gt; Database1
+Backend2 --&gt; Database2
+
+RemoteBackendEngine &lt;--&gt; BackendEngine"/>
+</p>
+<div class="section" id="client">
+<h3>Client<a class="headerlink" href="#client" title="Permalink to this headline">¶</a></h3>
+<p>Event client is any component that provides client functionality in
+<cite>Server - Client</cite> communication. Package <cite>hat-event</cite> provides python
+implementation of <cite>hat.event.client</cite> module which can be used as a basis for
+communication with Event Server. This module provides low-level and high-level
+communication API. For more detail see documentation of <cite>hat.event.client</cite>
+module.</p>
+</div>
+<div class="section" id="communication">
+<h3>Communication<a class="headerlink" href="#communication" title="Permalink to this headline">¶</a></h3>
+<p>Event Server’s communication module is responsible for providing implementation
+of server side <cite>Server - Client</cite> communication. This component translates
+client requests to module engine’s method calls. At the same time, it observes
+all new event notifications made by module engine and notifies clients with
+appropriate messages.</p>
+<p><cite>RegisterEvent</cite> objects obtained from client’s register requests must be
+converted to <cite>ProcessEvent</cite> before they can be passed for further processing
+to module engine. This conversion is done by module engine, as it is the only
+entity responsible for creating new <cite>ProcessEvent</cite> objects.</p>
+<p>A unique identifier is assigned to each chatter connection established with
+communication (unique for the single execution lifetime of Event Server
+process). This identifier is associated with all <cite>ProcessEvent</cite> objects obtained
+from corresponding connection.</p>
+<p>Communication associates connection with information received as part of
+connection’s last subscribe message. This subscription is used as a filter for
+selecting subset of event notifications which are sent to associated connection.</p>
+<div class="admonition-todo admonition" id="id3">
+<p class="admonition-title">Todo</p>
+<p>add additional system events generated internal by communication (e.g.
+client connected / disconnected)</p>
+</div>
+</div>
+<div class="section" id="module-engine">
+<h3>Module engine<a class="headerlink" href="#module-engine" title="Permalink to this headline">¶</a></h3>
+<p>Module engine is responsible for creating modules and coordinating event
+registration, processing and querying between communication, modules and
+backend engine.</p>
+<p>Module engine provides method for creating process events utilized by
+communication and modules. By creating process events, register events are
+enhanced with unique identifier and source identification. Identifier
+assigned to process event is the same one that is assigned to corresponding
+event. Information regarding source identifier is available only during
+processing of process event and is discarded once event is created.</p>
+<p>Process of creating events based on a single set of process events is called
+session. Module engine starts new session each time communication or module
+requests new registration. Session ends once backend engine returns result
+of event registration and all modules are notified with this result. Start
+and end of each session is notified to each module by creating and closing
+module session. Each module instantiates its own module session.</p>
+<p>During session processing, each module session is notified with a list of new
+and deleted process events which are not previously presented to that module.
+Processing these process events by module session can result in new process
+events which are to be added to current session or list of previously
+added process events which are to be deleted from session. All other module
+sessions, except the one that produced list of new and deleted process events,
+are notified with those process event lists. This process continues iteratively
+until all module sessions return empty lists for both new and deleted process
+events. Processing process events by single module session is always sequential
+- module session is notified with session changes after its previous
+notification processing is finished. Different module sessions may be processed
+concurrently. Module engine keeps order of new process events added to session,
+but it is allowed to aggregate processing results from multiple module sessions
+into a single session change notification.</p>
+<p>Care should be taken by module implementation not to cause self recursive or
+mutually recursive endless processing loop.</p>
+<p>Each module can define its event type filter condition which is used for
+filtering new and deleted process events that will get notified to module
+session. When session finishes, module session is closed by calling its
+<cite>async_close</cite> method, which receives a list of all newly created events
+resulting from the session processing. These events are not filtered by module
+subscription. By calling <cite>async_close</cite> with list of all newly registered
+events, module engine provides each module session with opportunity to
+post-process single session as a whole.</p>
+<div class="admonition-todo admonition" id="id4">
+<p class="admonition-title">Todo</p>
+<p>do we want to filter resulting events passed to module session close
+with module’s subscription?</p>
+</div>
+</div>
+<div class="section" id="modules">
+<h3>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Event server does not provide sandbox environment for loading end executing
+modules. Modules have full access to Event Server functionality which
+is controlled with module execution. Module implementation and
+configuration should be written in accordance to other modules and
+Event Server as a whole, keeping in mind processing execution time overhead
+and possible interference between modules.</p>
+</div>
+<p>Each module represents predefined and configurable closely related functions
+that can modify the process of registering new events or initiate new event
+registration sessions. When created, module is provided with reference to
+module engine which can be used for creating new process events, registering
+process events and querying events. Responsibility of each module, upon
+creation, is to create its own source identifier which will be unique for
+single Event Server process execution.</p>
+<p>Modules available as part of <cite>hat-event</cite> package:</p>
+<blockquote>
+<div><div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/dummy.html">Dummy module</a></li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="backend-engine">
+<h3>Backend engine<a class="headerlink" href="#backend-engine" title="Permalink to this headline">¶</a></h3>
+<p>Backend engine is responsible for actions involving persisting process events
+and querying events. During initialization, backend engine creates a single
+instance of backend which is used for storage.</p>
+<p>During registration of events, backend engine converts process events to
+backend events. This conversion involves setting event’s timestamp (which is
+the same for all events registered in a single session) and replacing
+event type with event type identifier. To enable this, backend engine
+has to maintain association reference between event types and corresponding
+event type identifiers. By replacing event types with identifiers, list of
+strings which represent event type is replaced with a single numeric identifier.</p>
+<p>Query request which is passed to backend engine contains event types as
+optional filter condition. Responsibility of backend engine is to find
+all matching event type identifiers and query backend based on a list of
+identifiers.</p>
+<div class="admonition-todo admonition" id="id5">
+<p class="admonition-title">Todo</p>
+<p>can we associate type identifiers based on subtypes and utilize identifier
+ranges instead of explicitly passing each identifier to backend</p>
+</div>
+<div class="admonition-todo admonition" id="id6">
+<p class="admonition-title">Todo</p>
+<p>sync between backend engines</p>
+</div>
+</div>
+<div class="section" id="backends">
+<h3>Backends<a class="headerlink" href="#backends" title="Permalink to this headline">¶</a></h3>
+<p>Backends are simple wrappers for storing and retrieving events from specialized
+storage engines.</p>
+<p>Backends available as part of <cite>hat-event</cite> package:</p>
+<blockquote>
+<div><div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backends/dummy.html">Dummy backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends/sqlite.html">Sqlite backend</a></li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="python-implementation">
+<h2>Python implementation<a class="headerlink" href="#python-implementation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="common">
+<h3>Common<a class="headerlink" href="#common" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id7">
+<h3>Client<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="server">
+<h3>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../libraries/index.html">Libraries</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../translator.html">Translator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../orchestrator.html">Orchestrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../monitor.html">Monitor Server</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Event Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/dummy.html">Dummy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="backends/dummy.html">Dummy backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="backends/sqlite.html">Sqlite backend</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../gateway/index.html">Gateway</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gui/index.html">GUI Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../monitor.html"
+                        title="previous chapter">Monitor Server</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modules/dummy.html"
+                        title="next chapter">Dummy module</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="modules/dummy.html" title="Dummy module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../monitor.html" title="Monitor Server"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Components</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

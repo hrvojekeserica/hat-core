@@ -1,0 +1,674 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Orchestrator &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Monitor Server" href="monitor.html" />
+    <link rel="prev" title="Translator" href="translator.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="monitor.html" title="Monitor Server"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="translator.html" title="Translator"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Components</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="orchestrator">
+<span id="id1"></span><h1>Orchestrator<a class="headerlink" href="#orchestrator" title="Permalink to this headline">¶</a></h1>
+<p>Orchestrator is the component responsible for starting and monitoring execution
+of other Hat components and their dependencies on a single machine. This
+component is used as simple cross-platform replacement for default OS
+service/daemon manager. Additionally, Orchestrator provides web-based user
+interface for monitoring and controlling configured components. Orchestrator
+is distributed as <cite>hat-orchestrator</cite> package.</p>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
+<p>By installing Orchestrator from <cite>hat-orchestrator</cite> package, executable
+<cite>hat-orchestrator</cite> becomes available and can be used for starting this
+component.</p>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Traceback (most recent call last):
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 193, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 86, in _run_code
+    exec(code, run_globals)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/orchestrator/__main__.py&quot;, line 3, in &lt;module&gt;
+    from hat.orchestrator.main import main
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/orchestrator/main.py&quot;, line 25, in &lt;module&gt;
+    json.SchemaRepository.from_json(package_path / &#39;json_schema_repo.json&#39;))
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/util/json.py&quot;, line 289, in from_json
+    data = decode_file(data)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/util/json.py&quot;, line 187, in decode_file
+    with open(path, &#39;r&#39;, encoding=&#39;utf-8&#39;) as f:
+FileNotFoundError: [Errno 2] No such file or directory: &#39;/home/runner/work/hat-core/hat-core/src_py/hat/orchestrator/json_schema_repo.json&#39;
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="component-orchestration">
+<h2>Component orchestration<a class="headerlink" href="#component-orchestration" title="Permalink to this headline">¶</a></h2>
+<p>Based on configuration parameters, Orchestrator spawns new child processes
+representing other components. Execution of child processes is monitored and
+their standard output and errors are logged. Once Orchestrator’s process
+terminates, all spawned child processes are also terminated.</p>
+<p>Each component is configured with these parameters:</p>
+<blockquote>
+<div><ul>
+<li><p><cite>name</cite></p>
+<blockquote>
+<div><p>Name used for component identification by the Orchestrator.</p>
+</div></blockquote>
+</li>
+<li><p><cite>args</cite></p>
+<blockquote>
+<div><p>Command line arguments (including binary name) used when starting
+component’s process.</p>
+</div></blockquote>
+</li>
+<li><p><cite>delay</cite></p>
+<blockquote>
+<div><p>Startup delay in seconds applied only upon first component startup.</p>
+</div></blockquote>
+</li>
+<li><p><cite>revive</cite></p>
+<blockquote>
+<div><p>If this property is set to true, Orchestrator will restart component’s
+process as soon as it terminates.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Automatic revival of stopped component includes constant delay (0.5 seconds)
+which stops overly zealous repetitive spawning of constantly closing process.</p>
+<p>Termination of each component is done by sending SIGINT signal (or
+CTRL_BREAK_EVENT on Windows) to component’s process. If process doesn’t finish
+during timeout period (5 seconds) after sending signal, process should be
+forcefully terminated by sending SIGKILL (or calling TerminateProcess on
+Windows).</p>
+<p>Each component’s output is redirected to Orchestrator’s output. Orchestrator’s
+standard input is non deterministically forwarded to components which are
+reading from standard input.</p>
+</div>
+<div class="section" id="component-states-and-actions">
+<h2>Component states and actions<a class="headerlink" href="#component-states-and-actions" title="Permalink to this headline">¶</a></h2>
+<p>During it’s lifetime, component can be in one of following states:</p>
+<blockquote>
+<div><ul>
+<li><p>STOPPED</p>
+<blockquote>
+<div><p>State representing component without associated running process.
+If startup delay is not set, this is initial state.</p>
+</div></blockquote>
+</li>
+<li><p>DELAYED</p>
+<blockquote>
+<div><p>Temporary state which occurs only once if component is configured with
+startup delay time. This state initial state and can not be entered
+from any other state. Usual transition from this state is to STARTING
+state, or to STOPPED state if stop action is issued.</p>
+</div></blockquote>
+</li>
+<li><p>STARTING</p>
+<blockquote>
+<div><p>State representing preparation and starting of new process.</p>
+</div></blockquote>
+</li>
+<li><p>RUNNING</p>
+<blockquote>
+<div><p>State of component with associated running process.</p>
+</div></blockquote>
+</li>
+<li><p>STOPPING</p>
+<blockquote>
+<div><p>State representing currently active termination procedure involving
+‘soft’ and ‘hard’ process termination actions.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>States STARTING and STOPPING are considered transitional states. Those states
+can not be interrupted by user actions. All actions which are registered during
+these states are buffered and only last action is executed once component exits
+these states. In all other states, actions are executed based on current state
+and are not queued for sequential execution.</p>
+<p>Component implementation exposes this externally available actions:</p>
+<blockquote>
+<div><ul>
+<li><p>start</p>
+<blockquote>
+<div><p>If current state of component is STOPPED or DELAYED, this action starts
+component’s startup procedure (it is expected that component will
+transit to STARTING state). If current state is RUNNING, this action
+has no effect.</p>
+</div></blockquote>
+</li>
+<li><p>stop</p>
+<blockquote>
+<div><p>If current state of component is RUNNING, this action stops component
+execution by starting previously described termination procedure (it is
+expected that component will transit to STOPPING state). If current
+state is DELAYED, this component transits directly to STOPPED state.
+For STOPPED state, this action is ignored.</p>
+</div></blockquote>
+</li>
+<li><p>change revive</p>
+<blockquote>
+<div><p>If current state of component is STOPPED and revive is set to true,
+component’s startup procedure is implicitly called.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Usual transition between states if not actions are performed is <cite>DELAYED or
+STOPPED &gt; STARTING &gt; RUNNING &gt; STOPPING &gt; STOPPED &gt; STARTING &gt; …</cite> with
+exceptions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>DELAYED is initial state if component delay is set. otherwise initial
+state is STOPPED</p></li>
+<li><p>state STARTING can transit directly to STOPPED state if error occurs
+during process startup procedure</p></li>
+<li><p>transition from STOPPED to STARTING occurs if <cite>revive</cite> flag is set</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="web-user-interface">
+<h2>Web user interface<a class="headerlink" href="#web-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>Orchestrator provides web user interface as primary way of user’s monitoring
+and controlling of components’ process execution. Functionality of this
+interface can be split into backend and frontend implementation. Backend
+is part of Orchestrator’s process and frontend is implemented as single page
+application running in browser. Communication between frontend and backend
+is based on <a class="reference internal" href="../libraries/juggler.html#juggler"><span class="std std-ref">juggler</span></a> communication protocol.</p>
+<p>Monitoring functionality provides real time information of all configured
+components and their current state.</p>
+<p>Control functionality enables user to change value of revive flag, start or
+stop each component. This functionality directly translates to calling of
+component’s start, stop and change revive actions.</p>
+<div class="section" id="backend-to-frontend-communication">
+<h3>Backend to frontend communication<a class="headerlink" href="#backend-to-frontend-communication" title="Permalink to this headline">¶</a></h3>
+<p>Backend contains all components description state which is shared between
+all frontends. When this state is changed, all frontends are notified of this
+change. Current components information is provided as server’s juggler local
+data which is defined by JSON schema:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;$schema&quot;</span><span class="p p-Indicator">:</span> <span class="s">&quot;http://json-schema.org/schema#&quot;</span>
+<span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="nt">required</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">components</span>
+<span class="nt">properties</span><span class="p">:</span>
+    <span class="nt">components</span><span class="p">:</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">array</span>
+        <span class="nt">items</span><span class="p">:</span>
+            <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+            <span class="nt">required</span><span class="p">:</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">delay</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">revive</span>
+                <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">status</span>
+            <span class="nt">properties</span><span class="p">:</span>
+                <span class="nt">id</span><span class="p">:</span>
+                    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+                <span class="nt">name</span><span class="p">:</span>
+                    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">string</span>
+                <span class="nt">delay</span><span class="p">:</span>
+                    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+                <span class="nt">revive</span><span class="p">:</span>
+                    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+                <span class="nt">status</span><span class="p">:</span>
+                    <span class="nt">enum</span><span class="p">:</span>
+                        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">STOPPED</span>
+                        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">DELAYED</span>
+                        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">RUNNING</span>
+</pre></div>
+</div>
+<p>Once juggler connection between server and client is established, server will
+immediately set correct local data.</p>
+<p>Server doesn’t send additional <cite>MESSAGE</cite> juggler messages.</p>
+</div>
+<div class="section" id="frontend-to-backend-communication">
+<h3>Frontend to backend communication<a class="headerlink" href="#frontend-to-backend-communication" title="Permalink to this headline">¶</a></h3>
+<p>This communication is used primary for enabling user control of configured
+components. For each available user action, there exist single juggler’s
+<cite>MESSAGE</cite> message.</p>
+<p>Frontend to backend juggler <cite>MESSAGE</cite> message JSON schema:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;$schema&quot;</span><span class="p p-Indicator">:</span> <span class="s">&quot;http://json-schema.org/schema#&quot;</span>
+<span class="nt">oneOf</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;$ref&quot;</span><span class="p p-Indicator">:</span> <span class="s">&quot;#/definitions/start&quot;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;$ref&quot;</span><span class="p p-Indicator">:</span> <span class="s">&quot;#/definitions/stop&quot;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;$ref&quot;</span><span class="p p-Indicator">:</span> <span class="s">&quot;#/definitions/revive&quot;</span>
+<span class="nt">definitions</span><span class="p">:</span>
+    <span class="nt">start</span><span class="p">:</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+        <span class="nt">required</span><span class="p">:</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">type</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">payload</span>
+        <span class="nt">properties</span><span class="p">:</span>
+            <span class="nt">type</span><span class="p">:</span>
+                <span class="nt">enum</span><span class="p">:</span>
+                    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">start</span>
+            <span class="nt">payload</span><span class="p">:</span>
+                <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+                <span class="nt">required</span><span class="p">:</span>
+                    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
+                <span class="nt">properties</span><span class="p">:</span>
+                    <span class="nt">id</span><span class="p">:</span>
+                        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+    <span class="nt">stop</span><span class="p">:</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+        <span class="nt">required</span><span class="p">:</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">type</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">payload</span>
+        <span class="nt">properties</span><span class="p">:</span>
+            <span class="nt">type</span><span class="p">:</span>
+                <span class="nt">enum</span><span class="p">:</span>
+                    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">stop</span>
+            <span class="nt">payload</span><span class="p">:</span>
+                <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+                <span class="nt">required</span><span class="p">:</span>
+                    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
+                <span class="nt">properties</span><span class="p">:</span>
+                    <span class="nt">id</span><span class="p">:</span>
+                        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+    <span class="nt">revive</span><span class="p">:</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+        <span class="nt">required</span><span class="p">:</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">type</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">payload</span>
+        <span class="nt">properties</span><span class="p">:</span>
+            <span class="nt">type</span><span class="p">:</span>
+                <span class="nt">enum</span><span class="p">:</span>
+                    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">revive</span>
+            <span class="nt">payload</span><span class="p">:</span>
+                <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">object</span>
+                <span class="nt">required</span><span class="p">:</span>
+                    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
+                    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">value</span>
+                <span class="nt">properties</span><span class="p">:</span>
+                    <span class="nt">id</span><span class="p">:</span>
+                        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+                    <span class="nt">value</span><span class="p">:</span>
+                        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+</pre></div>
+</div>
+<p>Client’s juggler local data isn’t changed during communication with server (it
+remains <cite>null</cite>).</p>
+</div>
+</div>
+<div class="section" id="possible-future-improvements">
+<h2>Possible future improvements<a class="headerlink" href="#possible-future-improvements" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>configurable revive delay</p></li>
+<li><p>configurable termination timeout</p></li>
+<li><p>console user interface based on prompt-toolkit</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>switching between component outputs</p></li>
+<li><p>deterministic redirecting standard input to specific component</p></li>
+<li><p>alternative to web user interface</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>additional features of web user interface</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>real-time logging of component output</p></li>
+<li><p>additional information on running process status (total running time,
+pid, …), revive counter, …</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>optional connection to monitor/event server</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>mapping of current status to events</p></li>
+<li><p>listening for control events</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="python-implementation">
+<h2>Python implementation<a class="headerlink" href="#python-implementation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hat.orchestrator.component">
+<span id="component"></span><h3>Component<a class="headerlink" href="#module-hat.orchestrator.component" title="Permalink to this headline">¶</a></h3>
+<dl class="py data">
+<dt id="hat.orchestrator.component.start_delay">
+<code class="sig-prename descclassname">hat.orchestrator.component.</code><code class="sig-name descname">start_delay</code><em class="property"> = 0.5</em><a class="headerlink" href="#hat.orchestrator.component.start_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>process start delay in seconds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt id="hat.orchestrator.component.create_timeout">
+<code class="sig-prename descclassname">hat.orchestrator.component.</code><code class="sig-name descname">create_timeout</code><em class="property"> = 2</em><a class="headerlink" href="#hat.orchestrator.component.create_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>create process timeout in seconds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt id="hat.orchestrator.component.sigint_timeout">
+<code class="sig-prename descclassname">hat.orchestrator.component.</code><code class="sig-name descname">sigint_timeout</code><em class="property"> = 5</em><a class="headerlink" href="#hat.orchestrator.component.sigint_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>SIGINT timeout in seconds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt id="hat.orchestrator.component.sigkill_timeout">
+<code class="sig-prename descclassname">hat.orchestrator.component.</code><code class="sig-name descname">sigkill_timeout</code><em class="property"> = 2</em><a class="headerlink" href="#hat.orchestrator.component.sigkill_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>SIGKILL timeout in seconds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.orchestrator.component.Status">
+<em class="property">class </em><code class="sig-prename descclassname">hat.orchestrator.component.</code><code class="sig-name descname">Status</code><a class="headerlink" href="#hat.orchestrator.component.Status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<ul class="simple">
+<li><p>STOPPED</p></li>
+<li><p>DELAYED</p></li>
+<li><p>STARTING</p></li>
+<li><p>RUNNING</p></li>
+<li><p>STOPPING</p></li>
+</ul>
+<dl class="py attribute">
+<dt id="hat.orchestrator.component.Status.DELAYED">
+<code class="sig-name descname">DELAYED</code><em class="property"> = 2</em><a class="headerlink" href="#hat.orchestrator.component.Status.DELAYED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.orchestrator.component.Status.RUNNING">
+<code class="sig-name descname">RUNNING</code><em class="property"> = 4</em><a class="headerlink" href="#hat.orchestrator.component.Status.RUNNING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.orchestrator.component.Status.STARTING">
+<code class="sig-name descname">STARTING</code><em class="property"> = 3</em><a class="headerlink" href="#hat.orchestrator.component.Status.STARTING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.orchestrator.component.Status.STOPPED">
+<code class="sig-name descname">STOPPED</code><em class="property"> = 1</em><a class="headerlink" href="#hat.orchestrator.component.Status.STOPPED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.orchestrator.component.Status.STOPPING">
+<code class="sig-name descname">STOPPING</code><em class="property"> = 5</em><a class="headerlink" href="#hat.orchestrator.component.Status.STOPPING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.orchestrator.component.Component">
+<em class="property">class </em><code class="sig-prename descclassname">hat.orchestrator.component.</code><code class="sig-name descname">Component</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.component.Component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conf</strong> (<em>hat.json.Data</em>) – configuration defined by
+<code class="docutils literal notranslate"><span class="pre">hat://orchestrator.yaml#/definitions/component</span></code></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.orchestrator.component.Component.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.status">
+<em class="property">property </em><code class="sig-name descname">status</code><a class="headerlink" href="#hat.orchestrator.component.Component.status" title="Permalink to this definition">¶</a></dt>
+<dd><p>current status</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hat.orchestrator.component.Status" title="hat.orchestrator.component.Status">Status</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#hat.orchestrator.component.Component.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>component name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.args">
+<em class="property">property </em><code class="sig-name descname">args</code><a class="headerlink" href="#hat.orchestrator.component.Component.args" title="Permalink to this definition">¶</a></dt>
+<dd><p>command line arguments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.delay">
+<em class="property">property </em><code class="sig-name descname">delay</code><a class="headerlink" href="#hat.orchestrator.component.Component.delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>delay in seconds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.revive">
+<em class="property">property </em><code class="sig-name descname">revive</code><a class="headerlink" href="#hat.orchestrator.component.Component.revive" title="Permalink to this definition">¶</a></dt>
+<dd><p>revive component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.register_change_cb">
+<code class="sig-name descname">register_change_cb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cb</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.component.Component.register_change_cb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register change callback</p>
+<p>All changes to revive and/or status properties (even those occuring
+due to call of async_close) are notified by calling registered
+callback.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cb</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>,</em><em>None</em><em>]</em>) – change callback</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>util.RegisterCallbackHandle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.component.Component.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Async close</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.set_revive">
+<code class="sig-name descname">set_revive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">revive</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.component.Component.set_revive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set revive flag</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>revive</strong> (<em>bool</em>) – revive flag</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.component.Component.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start component</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.component.Component.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.component.Component.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop component</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-hat.orchestrator.ui">
+<span id="ui"></span><h3>UI<a class="headerlink" href="#module-hat.orchestrator.ui" title="Permalink to this headline">¶</a></h3>
+<dl class="py function">
+<dt id="hat.orchestrator.ui.create">
+<em class="property">async </em><code class="sig-prename descclassname">hat.orchestrator.ui.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf</span></em>, <em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">components</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.ui.create" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Create ui for monitoring and controlling components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conf</strong> (<em>hat.json.Data</em>) – configuration defined by
+<code class="docutils literal notranslate"><span class="pre">hat://orchestrator.yaml#/definitions/ui</span></code></p></li>
+<li><p><strong>path</strong> (<em>pathlib.Path</em>) – web ui directory path</p></li>
+<li><p><strong>components</strong> (<em>List</em><em>[</em><a class="reference internal" href="#hat.orchestrator.component.Component" title="hat.orchestrator.component.Component"><em>hat.orchestrator.component.Component</em></a><em>]</em>) – components</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>WebServer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.orchestrator.ui.WebServer">
+<em class="property">class </em><code class="sig-prename descclassname">hat.orchestrator.ui.</code><code class="sig-name descname">WebServer</code><a class="headerlink" href="#hat.orchestrator.ui.WebServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>For creating new instance of this class see <a class="reference internal" href="#hat.orchestrator.ui.create" title="hat.orchestrator.ui.create"><code class="xref py py-func docutils literal notranslate"><span class="pre">create()</span></code></a></p>
+<dl class="py method">
+<dt id="hat.orchestrator.ui.WebServer.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.orchestrator.ui.WebServer.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.orchestrator.ui.WebServer.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.orchestrator.ui.WebServer.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Close web server and all active connections</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../libraries/index.html">Libraries</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="translator.html">Translator</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Orchestrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitor.html">Monitor Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event/index.html">Event Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gateway/index.html">Gateway</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui/index.html">GUI Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="translator.html"
+                        title="previous chapter">Translator</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="monitor.html"
+                        title="next chapter">Monitor Server</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="monitor.html" title="Monitor Server"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="translator.html" title="Translator"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Components</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

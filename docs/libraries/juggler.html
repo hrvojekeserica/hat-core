@@ -1,0 +1,395 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Juggler communication protocol &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Duktape wrapper" href="duktape.html" />
+    <link rel="prev" title="Chatter communication protocol" href="chatter.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="duktape.html" title="Duktape wrapper"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="chatter.html" title="Chatter communication protocol"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Libraries</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="juggler-communication-protocol">
+<span id="juggler"></span><h1>Juggler communication protocol<a class="headerlink" href="#juggler-communication-protocol" title="Permalink to this headline">¶</a></h1>
+<p>Juggler is communication protocol used for communication between back-end and
+GUI front-end parts of components. As underlying protocol, Juggler uses
+WebSocket communication and text messages encoding JSON data. Communication
+between peers is symmetrical full duplex - once client and server establish
+WebSocket communication, each party can send messages independently of other
+and no further distinction between client and server is made.</p>
+<div class="section" id="model">
+<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
+<p>As prerequisite for Juggler communication, each peer should implement data
+model consisting of local and remote data. Data can be arbitrary application
+specific JSON serializable data.</p>
+<p>Initially, <cite>null</cite> value is assumed for both local and remote data.</p>
+<p>Each peer can freely change local data. Once local data is changed, JSON patch
+between previous and current local data is generated and transmitted to
+other peer. Upon receiving data change, other peer applies JSON patch to it’s
+remote data and notifies of remote data change. This enables continuous
+synchronization of local and remote data on both peers.</p>
+</div>
+<div class="section" id="communication">
+<h2>Communication<a class="headerlink" href="#communication" title="Permalink to this headline">¶</a></h2>
+<p>Juggler provides communication based on continuous synchronization of JSON data
+and communication based on asynchronous message passing.</p>
+<p>Local and remote data synchronization assumes existence of time delayed caching
+implementation. Once local data changes, peer should wait for predefined
+time period prior to sending changes to other peer. In this time period,
+peer expects other local data changes which should all be delivered as single
+change to other peer. This caching provides optimization of message number and
+size of data exchanged between peers. At same time, additional communication
+latency is introduced.</p>
+<p>When transfer of data as they are is required, asynchronous message passing
+should be used. By explicitly sending JSON messages, each peer can transmit
+arbitrary data. This communication assumes that no additional caching is
+done by Juggler implementation. Asynchronous message passing is independent
+of continuous data synchronization communication.</p>
+</div>
+<div class="section" id="messages">
+<h2>Messages<a class="headerlink" href="#messages" title="Permalink to this headline">¶</a></h2>
+<p>All messages are UTF-8 encoded JSON data defined by following JSON Schema:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+<span class="n">required</span><span class="p">:</span>
+    <span class="o">-</span> <span class="nb">type</span>
+    <span class="o">-</span> <span class="n">payload</span>
+<span class="n">properties</span><span class="p">:</span>
+    <span class="nb">type</span><span class="p">:</span>
+        <span class="n">enum</span><span class="p">:</span>
+            <span class="o">-</span> <span class="n">DATA</span>
+            <span class="o">-</span> <span class="n">MESSAGE</span>
+</pre></div>
+</div>
+<p><cite>DATA</cite> messages are used for continuous synchronization of JSON data. It’s
+<cite>payload</cite> parameter contains JSON patch value as defined by
+<a class="reference external" href="https://tools.ietf.org/html/rfc6902">https://tools.ietf.org/html/rfc6902</a>. This messages are sent by peer once
+local data changes.</p>
+<p><cite>MESSAGE</cite> messages provide asynchronous message passing communication.</p>
+</div>
+<div class="section" id="module-hat.juggler">
+<span id="python-implementation"></span><h2>Python implementation<a class="headerlink" href="#module-hat.juggler" title="Permalink to this headline">¶</a></h2>
+<p>Juggler communication protocol</p>
+<p>This module implements basic communication infrastructure used for
+communication between back-end and GUI front-end parts of Hat components.</p>
+<dl class="py attribute">
+<dt id="hat.juggler.mlog">
+<code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">mlog</code><a class="headerlink" href="#hat.juggler.mlog" title="Permalink to this definition">¶</a></dt>
+<dd><p>module logger</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>logging.Logger</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.juggler.sync_local_delay">
+<code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">sync_local_delay</code><a class="headerlink" href="#hat.juggler.sync_local_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>delay on syncing local data changes in seconds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.juggler.server_connects_close_timeout">
+<code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">server_connects_close_timeout</code><a class="headerlink" href="#hat.juggler.server_connects_close_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>timeout for closing opened
+connections</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="hat.juggler.ConnectionClosedError">
+<em class="property">exception </em><code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">ConnectionClosedError</code><a class="headerlink" href="#hat.juggler.ConnectionClosedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error signaling closed connection</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.juggler.connect">
+<em class="property">async </em><code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Connect to remote server</p>
+<p>Address represents remote WebSocket URL formated as
+<code class="docutils literal notranslate"><span class="pre">ws://&lt;host&gt;:&lt;port&gt;/&lt;path&gt;</span></code>.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>add wss support</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>address</strong> (<em>str</em>) – remote server address</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Connection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.juggler.listen">
+<em class="property">async </em><code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">listen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">address</span></em>, <em class="sig-param"><span class="n">connection_cb</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">static_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.listen" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Create listening server</p>
+<p>For address formating see <a class="reference internal" href="#hat.juggler.connect" title="hat.juggler.connect"><code class="xref py py-func docutils literal notranslate"><span class="pre">connect()</span></code></a>.</p>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<ul class="simple">
+<li><p>review address format for listen</p></li>
+<li><p>add https support</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>address</strong> (<em>str</em>) – listening address</p></li>
+<li><p><strong>connection_cb</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="drivers/serial.html#hat.drivers.serial.Connection" title="hat.drivers.serial.Connection"><em>Connection</em></a><em>]</em><em>,</em><em>None</em><em>]</em>) – new connection callback</p></li>
+<li><p><strong>static_path</strong> (<a class="reference internal" href="peg.html#hat.peg.Optional" title="hat.peg.Optional"><em>Optional</em></a><em>[</em><em>os.PathLike</em><em>]</em>) – static directory path</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Server</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.juggler.Server">
+<em class="property">class </em><code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">Server</code><a class="headerlink" href="#hat.juggler.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>For creating new server see <a class="reference internal" href="#hat.juggler.listen" title="hat.juggler.listen"><code class="xref py py-func docutils literal notranslate"><span class="pre">listen()</span></code></a>.</p>
+<dl class="py method">
+<dt id="hat.juggler.Server.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.juggler.Server.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Server.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.Server.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Async close server and all active connections</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.juggler.Connection">
+<em class="property">class </em><code class="sig-prename descclassname">hat.juggler.</code><code class="sig-name descname">Connection</code><a class="headerlink" href="#hat.juggler.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>For creating new connection see <a class="reference internal" href="#hat.juggler.connect" title="hat.juggler.connect"><code class="xref py py-func docutils literal notranslate"><span class="pre">connect()</span></code></a>.</p>
+<dl class="py method">
+<dt id="hat.juggler.Connection.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.juggler.Connection.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.local_data">
+<em class="property">property </em><code class="sig-name descname">local_data</code><a class="headerlink" href="#hat.juggler.Connection.local_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>local data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>json.Data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.remote_data">
+<em class="property">property </em><code class="sig-name descname">remote_data</code><a class="headerlink" href="#hat.juggler.Connection.remote_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>remote data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>json.Data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.register_change_cb">
+<code class="sig-name descname">register_change_cb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cb</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.Connection.register_change_cb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register remote data change callback</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cb</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>,</em><em>None</em><em>]</em>) – change callback</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>util.RegisterCallbackHandle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.Connection.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Async close</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.set_local_data">
+<code class="sig-name descname">set_local_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.Connection.set_local_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set local data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>json.Data</em>) – local data</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hat.juggler.ConnectionClosedError" title="hat.juggler.ConnectionClosedError"><strong>ConnectionClosedError</strong></a> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.flush_local_data">
+<em class="property">async </em><code class="sig-name descname">flush_local_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.Connection.flush_local_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Force synchronization of local data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hat.juggler.ConnectionClosedError" title="hat.juggler.ConnectionClosedError"><strong>ConnectionClosedError</strong></a> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.send">
+<em class="property">async </em><code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.Connection.send" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Send message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>json.Data</em>) – message</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hat.juggler.ConnectionClosedError" title="hat.juggler.ConnectionClosedError"><strong>ConnectionClosedError</strong></a> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.juggler.Connection.receive">
+<em class="property">async </em><code class="sig-name descname">receive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.juggler.Connection.receive" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Receive message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>message</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>json.Data</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hat.juggler.ConnectionClosedError" title="hat.juggler.ConnectionClosedError"><strong>ConnectionClosedError</strong></a> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Libraries</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="util.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="peg.html">Parsing expression grammar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbs.html">Simple binary serialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chatter.html">Chatter communication protocol</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Juggler communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="duktape.html">Duktape wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drivers/index.html">Drivers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="chatter.html"
+                        title="previous chapter">Chatter communication protocol</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="duktape.html"
+                        title="next chapter">Duktape wrapper</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="duktape.html" title="Duktape wrapper"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="chatter.html" title="Chatter communication protocol"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Libraries</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

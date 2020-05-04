@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Gateway &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Dummy device" href="devices/dummy.html" />
+    <link rel="prev" title="Sqlite backend" href="../event/backends/sqlite.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="devices/dummy.html" title="Dummy device"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../event/backends/sqlite.html" title="Sqlite backend"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Components</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gateway">
+<span id="id1"></span><h1>Gateway<a class="headerlink" href="#gateway" title="Permalink to this headline">¶</a></h1>
+<p>Primary function of Gateway is to provide access to remote devices
+communicating with different protocols. Gateway connects to these remote
+devices and to the Event Server and serves as the intermediary between remote
+devices and other components. Once a remote device sends a message
+to Gateway, it will send the appropriate Event registration request to the
+Event Server. The same logic is applied in reverse - Gateway sends a message to
+a remote device once the Event server creates an appropriate Event. With
+this functionality, Gateway provides bidirectional translation between
+communication protocols and Event Server’s events.</p>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
+<p>By installing Gateway from <cite>hat-gateway</cite> package, executable <cite>hat-gateway</cite>
+becomes available and can be used for starting this component.</p>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Traceback (most recent call last):
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 193, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 86, in _run_code
+    exec(code, run_globals)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/gateway/__main__.py&quot;, line 3, in &lt;module&gt;
+    from hat.gateway.main import main
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/gateway/main.py&quot;, line 23, in &lt;module&gt;
+    import hat.event.client
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/event/client.py&quot;, line 76, in &lt;module&gt;
+    from hat import chatter
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/chatter.py&quot;, line 31, in &lt;module&gt;
+    sbs_repo = sbs.Repository.from_json(Path(__file__).parent /
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/sbs/repository.py&quot;, line 86, in from_json
+    data = json.decode_file(data)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/util/json.py&quot;, line 187, in decode_file
+    with open(path, &#39;r&#39;, encoding=&#39;utf-8&#39;) as f:
+FileNotFoundError: [Errno 2] No such file or directory: &#39;/home/runner/work/hat-core/hat-core/src_py/hat/chatter_sbs_repo.json&#39;
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Gateway functionality can be defined according to following components:</p>
+<p class="plantuml">
+<img src="../../_images/plantuml-42b89f2938540061aa33cd0bc5cf69fb28c4e5cc.png" alt="component &quot;Event Server&quot; as EventServer
+
+folder &quot;Gateway&quot; {
+    component Engine
+    component &quot;Device proxy 1&quot; &lt;&lt;Device proxy&gt;&gt; as DeviceProxy1
+    component &quot;Device proxy 2&quot; &lt;&lt;Device proxy&gt;&gt; as DeviceProxy2
+    component &quot;Device proxy 3&quot; &lt;&lt;Device proxy&gt;&gt; as DeviceProxy3
+    component &quot;Device 1&quot; &lt;&lt;Device&gt;&gt; as Device1
+    component &quot;Device 2&quot; &lt;&lt;Device&gt;&gt; as Device2
+    component &quot;Device 3&quot; &lt;&lt;Device&gt;&gt; as Device3
+}
+
+component &quot;Remote Device 1&quot; &lt;&lt;Remote Device&gt;&gt; as RemoteDevice1
+component &quot;Remote Device 2&quot; &lt;&lt;Remote Device&gt;&gt; as RemoteDevice2
+component &quot;Remote Device 3&quot; &lt;&lt;Remote Device&gt;&gt; as RemoteDevice3
+
+EventServer &lt;---&gt; Engine
+
+Engine o--- DeviceProxy1
+Engine o--- DeviceProxy2
+Engine o--- DeviceProxy3
+
+DeviceProxy1 o--- Device1
+DeviceProxy2 o--- Device2
+DeviceProxy3 o--- Device3
+
+Device1 &lt;---&gt; RemoteDevice1
+Device2 &lt;---&gt; RemoteDevice2
+Device3 &lt;---&gt; RemoteDevice3"/>
+</p>
+<p>Functionality is dependent on active connection to Event Server. Engine is
+created when connection with Event Server is established and destroyed if
+this connection is closed. If connection with Event Server is closed, Gateway
+will repeatedly try to establish new connection with currently active Event
+Server. If connection to Monitor Server could not be established or is closed,
+Gateway terminates it’s process execution.</p>
+</div>
+<div class="section" id="event-server-communication">
+<h2>Event Server communication<a class="headerlink" href="#event-server-communication" title="Permalink to this headline">¶</a></h2>
+<p>Communication between Event Server and Gateway is based on Gateway’s requests
+for event registrations and Event Server’s notification of newly created
+events. Additionally, Gateway can query previously registered events persisted
+by Event Server.</p>
+<p>All events, consumed and registered by Gateway’s request, have event type
+prefixed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;gateway&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">gateway_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">device_type</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">device_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">source</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>&lt;gateway_name&gt;</cite> - gateway instance identifier</p></li>
+<li><p><cite>&lt;device_type&gt;</cite> - device type identifier</p></li>
+<li><p><cite>&lt;device_name&gt;</cite> - device instance identifier</p></li>
+<li><p><cite>&lt;source&gt;</cite> - <code class="docutils literal notranslate"><span class="pre">gateway</span></code> for events registered by Gateway and
+<code class="docutils literal notranslate"><span class="pre">system</span></code> for events registered by other components</p></li>
+</ul>
+</div></blockquote>
+<p>While establishing connection with Event Server, Gateway subscribes for events
+that match:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;gateway&#39;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">gateway_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span>
+</pre></div>
+</div>
+<p>All devices, regardless of device type, support following events:</p>
+<blockquote>
+<div><ul>
+<li><p>‘gateway’, &lt;gateway_name&gt;, &lt;device_type&gt;, &lt;device_name&gt;, ‘system’, ‘enable’</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>source timestamp</cite> - optional timestamp when component issued event
+register request</p></li>
+<li><p><cite>payload</cite> - JSON payload encoding boolean value which represents
+device’s enabled status</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>‘gateway’, &lt;gateway_name&gt;, &lt;device_type&gt;, &lt;device_name&gt;, ‘gateway’, ‘running’</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>source timestamp</cite> - required timestamp when Device is successfully
+created (started) or destroyed (stopped)</p></li>
+<li><p><cite>payload</cite> - JSON payload encoding boolean value set to <cite>true</cite> when
+Device is successfully created (started) or destroyed (stopped)</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>All other Gateway events are specified in dependence of <cite>&lt;device_type&gt;</cite>.</p>
+</div>
+<div class="section" id="engine">
+<h2>Engine<a class="headerlink" href="#engine" title="Permalink to this headline">¶</a></h2>
+<p>Central part responsible for device orchestration. It is created when new
+connection with Event Server is established and destroyed when connection is
+closed. During initialization, engine creates new instance of device proxy for
+each configured device. These device proxies are destroyed during engine
+deletion procedure.</p>
+</div>
+<div class="section" id="device-proxy">
+<h2>Device proxy<a class="headerlink" href="#device-proxy" title="Permalink to this headline">¶</a></h2>
+<p>Each device proxy is responsible for managing lifetime of single device and
+providing custom device’s interface to event server. Device lifetime is
+dependent of last <cite>enable</cite> event state. During initialization, device proxy
+registers a new <cite>running</cite> event with payload <cite>false</cite>, queries last device’s
+associated <cite>enable</cite> event and keeps monitoring for any new <cite>enable</cite> events. When
+device is enabled, proxy creates new instance of device. Once device is
+successfully created, proxy registers new <cite>running</cite> event with payload <code class="docutils literal notranslate"><span class="pre">true</span></code>.
+If at any time device is disabled, proxy will destroy associated device instance
+and continue waiting for new <cite>enable</cite> event. When device is successfully
+destroyed, proxy will try to register new <cite>running</cite> event with payload
+<code class="docutils literal notranslate"><span class="pre">false</span></code>. Once proxy is destroyed, associated device is also destroyed.</p>
+<p>Prior to new device instance initialization, responsibility of proxy is to
+create interface for event server communication appropriate for associated
+device. This interface provides event filtering (based on event type) specific
+for associated device. Newly received events are passed to device only
+when devices <cite>running</cite> state is <code class="docutils literal notranslate"><span class="pre">true</span></code> (after successful initialization
+and until device is successfully destroyed).</p>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>maybe we should start putting new events to DeviceEventClient prior
+to calling create_device</p>
+</div>
+</div>
+<div class="section" id="device">
+<h2>Device<a class="headerlink" href="#device" title="Permalink to this headline">¶</a></h2>
+<p>Devices provide abstraction for mapping custom communication protocols to
+Event Server’s events. Event mapping is uniquely defined according to
+each device type. Implementation of device logic interfaces with other
+devices and Gateway’s core logic so additional care should be taken during
+device implementation (Gateway doesn’t provide sandbox environment for
+execution of device logic).</p>
+<p>Devices available as part of <cite>hat-gateway</cite> package:</p>
+<blockquote>
+<div><div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="devices/dummy.html">Dummy device</a></li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="python-implementation">
+<h2>Python implementation<a class="headerlink" href="#python-implementation" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../libraries/index.html">Libraries</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../translator.html">Translator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../orchestrator.html">Orchestrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../monitor.html">Monitor Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../event/index.html">Event Server</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Gateway</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="devices/dummy.html">Dummy device</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../gui/index.html">GUI Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../event/backends/sqlite.html"
+                        title="previous chapter">Sqlite backend</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="devices/dummy.html"
+                        title="next chapter">Dummy device</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="devices/dummy.html" title="Dummy device"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../event/backends/sqlite.html" title="Sqlite backend"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Components</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

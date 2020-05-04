@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Serial &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="UDP" href="udp.html" />
+    <link rel="prev" title="Drivers" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="udp.html" title="UDP"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Drivers"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Libraries</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Drivers</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="serial">
+<h1>Serial<a class="headerlink" href="#serial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-hat.drivers.serial">
+<span id="python-implementation"></span><h2>Python implementation<a class="headerlink" href="#module-hat.drivers.serial" title="Permalink to this headline">¶</a></h2>
+<p>Asyncio wrapper for serial communication</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>implementation is based on read with timeout for periodical checking
+if connection is closed by user - better way of canceling active read
+operation is needed</p>
+</div>
+<dl class="py attribute">
+<dt id="hat.drivers.serial.mlog">
+<code class="sig-prename descclassname">hat.drivers.serial.</code><code class="sig-name descname">mlog</code><a class="headerlink" href="#hat.drivers.serial.mlog" title="Permalink to this definition">¶</a></dt>
+<dd><p>module logger</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>logging.Logger</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.drivers.serial.open">
+<em class="property">async </em><code class="sig-prename descclassname">hat.drivers.serial.</code><code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.serial.open" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Open serial port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conf</strong> (<em>hat.json.Data</em>) – configuration defined by
+‘hat://drivers/serial.yaml#’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Connection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.drivers.serial.Connection">
+<em class="property">class </em><code class="sig-prename descclassname">hat.drivers.serial.</code><code class="sig-name descname">Connection</code><a class="headerlink" href="#hat.drivers.serial.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Serial connection</p>
+<p>For creating new instances see <a class="reference internal" href="#hat.drivers.serial.open" title="hat.drivers.serial.open"><code class="xref py py-func docutils literal notranslate"><span class="pre">hat.drivers.serial.open()</span></code></a></p>
+<dl class="py method">
+<dt id="hat.drivers.serial.Connection.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.drivers.serial.Connection.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.serial.Connection.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.serial.Connection.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Async close</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.serial.Connection.read">
+<em class="property">async </em><code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.serial.Connection.read" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Read</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em>) – number of bytes to read</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.serial.Connection.write">
+<em class="property">async </em><code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.serial.Connection.write" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Write</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Libraries</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../util.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../peg.html">Parsing expression grammar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sbs.html">Simple binary serialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chatter.html">Chatter communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../juggler.html">Juggler communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../duktape.html">Duktape wrapper</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Drivers</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Serial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="udp.html">UDP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tpkt.html">TPKT</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Drivers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="udp.html"
+                        title="next chapter">UDP</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="udp.html" title="UDP"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Drivers"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Libraries</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Drivers</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

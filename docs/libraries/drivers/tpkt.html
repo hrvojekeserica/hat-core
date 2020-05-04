@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>TPKT &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Components" href="../../components/index.html" />
+    <link rel="prev" title="UDP" href="udp.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="../../components/index.html" title="Components"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="udp.html" title="UDP"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Libraries</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Drivers</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tpkt">
+<h1>TPKT<a class="headerlink" href="#tpkt" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-hat.drivers.tpkt">
+<span id="python-implementation"></span><h2>Python implementation<a class="headerlink" href="#module-hat.drivers.tpkt" title="Permalink to this headline">¶</a></h2>
+<p>Transport protocol on top of TCP</p>
+<dl class="py attribute">
+<dt id="hat.drivers.tpkt.mlog">
+<code class="sig-prename descclassname">hat.drivers.tpkt.</code><code class="sig-name descname">mlog</code><a class="headerlink" href="#hat.drivers.tpkt.mlog" title="Permalink to this definition">¶</a></dt>
+<dd><p>module logger</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>logging.Logger</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.drivers.tpkt.Address">
+<em class="property">class </em><code class="sig-prename descclassname">hat.drivers.tpkt.</code><code class="sig-name descname">Address</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span></em>, <em class="sig-param"><span class="n">port</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.Address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of Address(host, port)</p>
+<dl class="py attribute">
+<dt id="hat.drivers.tpkt.Address.host">
+<code class="sig-name descname">host</code><a class="headerlink" href="#hat.drivers.tpkt.Address.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>host name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.drivers.tpkt.Address.port">
+<code class="sig-name descname">port</code><a class="headerlink" href="#hat.drivers.tpkt.Address.port" title="Permalink to this definition">¶</a></dt>
+<dd><p>TCP port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.drivers.tpkt.ConnectionInfo">
+<em class="property">class </em><code class="sig-prename descclassname">hat.drivers.tpkt.</code><code class="sig-name descname">ConnectionInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">local_addr</span></em>, <em class="sig-param"><span class="n">remote_addr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.ConnectionInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of ConnectionInfo(local_addr, remote_addr)</p>
+<dl class="py attribute">
+<dt id="hat.drivers.tpkt.ConnectionInfo.local_addr">
+<code class="sig-name descname">local_addr</code><a class="headerlink" href="#hat.drivers.tpkt.ConnectionInfo.local_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p>local address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hat.drivers.tpkt.Address" title="hat.drivers.tpkt.Address">Address</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.drivers.tpkt.ConnectionInfo.remote_addr">
+<code class="sig-name descname">remote_addr</code><a class="headerlink" href="#hat.drivers.tpkt.ConnectionInfo.remote_addr" title="Permalink to this definition">¶</a></dt>
+<dd><p>remote address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hat.drivers.tpkt.Address" title="hat.drivers.tpkt.Address">Address</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.drivers.tpkt.connect">
+<em class="property">async </em><code class="sig-prename descclassname">hat.drivers.tpkt.</code><code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Create new TPKT connection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addr</strong> (<a class="reference internal" href="#hat.drivers.tpkt.Address" title="hat.drivers.tpkt.Address"><em>Address</em></a>) – remote address</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Connection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.drivers.tpkt.listen">
+<em class="property">async </em><code class="sig-prename descclassname">hat.drivers.tpkt.</code><code class="sig-name descname">listen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">connection_cb</span></em>, <em class="sig-param"><span class="n">addr</span><span class="o">=</span><span class="default_value">Address(host='0.0.0.0', port=102)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.listen" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Create new TPKT listening server</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>connection_cb</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="serial.html#hat.drivers.serial.Connection" title="hat.drivers.serial.Connection"><em>Connection</em></a><em>]</em><em>,</em><em>None</em><em>]</em>) – new connection callback</p></li>
+<li><p><strong>addr</strong> (<a class="reference internal" href="#hat.drivers.tpkt.Address" title="hat.drivers.tpkt.Address"><em>Address</em></a>) – local listening address</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Server</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.drivers.tpkt.Server">
+<em class="property">class </em><code class="sig-prename descclassname">hat.drivers.tpkt.</code><code class="sig-name descname">Server</code><a class="headerlink" href="#hat.drivers.tpkt.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>TPKT listening server</p>
+<p>For creation of new instance see <a class="reference internal" href="#hat.drivers.tpkt.listen" title="hat.drivers.tpkt.listen"><code class="xref py py-func docutils literal notranslate"><span class="pre">listen()</span></code></a></p>
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Server.addresses">
+<em class="property">property </em><code class="sig-name descname">addresses</code><a class="headerlink" href="#hat.drivers.tpkt.Server.addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>listening (IP address, TCP port) pairs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[Tuple[str,int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Server.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.drivers.tpkt.Server.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Server.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.Server.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Close listening socket</p>
+<p>Calling this method closes all active established connections</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.drivers.tpkt.Connection">
+<em class="property">class </em><code class="sig-prename descclassname">hat.drivers.tpkt.</code><code class="sig-name descname">Connection</code><a class="headerlink" href="#hat.drivers.tpkt.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>TPKT connection</p>
+<p>For creation of new instance see <a class="reference internal" href="#hat.drivers.tpkt.connect" title="hat.drivers.tpkt.connect"><code class="xref py py-func docutils literal notranslate"><span class="pre">connect()</span></code></a></p>
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Connection.info">
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#hat.drivers.tpkt.Connection.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>connection info</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hat.drivers.tpkt.ConnectionInfo" title="hat.drivers.tpkt.ConnectionInfo">ConnectionInfo</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Connection.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.drivers.tpkt.Connection.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Connection.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.Connection.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Async close</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Connection.read">
+<em class="property">async </em><code class="sig-name descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.Connection.read" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Read data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.drivers.tpkt.Connection.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.drivers.tpkt.Connection.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Libraries</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../util.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../peg.html">Parsing expression grammar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sbs.html">Simple binary serialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chatter.html">Chatter communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../juggler.html">Juggler communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../duktape.html">Duktape wrapper</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Drivers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="serial.html">Serial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="udp.html">UDP</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">TPKT</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="udp.html"
+                        title="previous chapter">UDP</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../components/index.html"
+                        title="next chapter">Components</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="../../components/index.html" title="Components"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="udp.html" title="UDP"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Libraries</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Drivers</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

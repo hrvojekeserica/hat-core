@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Event definitions &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SBS Schema definitions" href="sbs.html" />
+    <link rel="prev" title="Default TCP ports" href="ports.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="sbs.html" title="SBS Schema definitions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ports.html" title="Default TCP ports"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Appendix</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="event-definitions">
+<h1>Event definitions<a class="headerlink" href="#event-definitions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="gateway">
+<h2>Gateway<a class="headerlink" href="#gateway" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>‘gateway’, &lt;gateway_name&gt;, &lt;device_type&gt;, &lt;device_name&gt;, ‘system’, ‘enable’</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>source timestamp</cite> - optional timestamp when component issued event
+register request</p></li>
+<li><p><cite>payload</cite> - JSON payload encoding boolean value which represents
+device’s enabled status</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>‘gateway’, &lt;gateway_name&gt;, &lt;device_type&gt;, &lt;device_name&gt;, ‘gateway’, ‘running’</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>source timestamp</cite> - required timestamp when Device is successfully
+created (started) or destroyed (stopped)</p></li>
+<li><p><cite>payload</cite> - JSON payload encoding boolean value set to <cite>true</cite> when
+Device is successfully created (started) or destroyed (stopped)</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../libraries/index.html">Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Appendix</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ports.html">Default TCP ports</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Event definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbs.html">SBS Schema definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json.html">JSON Schema definitions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ports.html"
+                        title="previous chapter">Default TCP ports</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sbs.html"
+                        title="next chapter">SBS Schema definitions</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="sbs.html" title="SBS Schema definitions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ports.html" title="Default TCP ports"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Appendix</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

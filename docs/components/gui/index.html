@@ -1,0 +1,660 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GUI Server &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Dummy adapter" href="adapters/dummy.html" />
+    <link rel="prev" title="Dummy device" href="../gateway/devices/dummy.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="adapters/dummy.html" title="Dummy adapter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../gateway/devices/dummy.html" title="Dummy device"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Components</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gui-server">
+<span id="gui"></span><h1>GUI Server<a class="headerlink" href="#gui-server" title="Permalink to this headline">¶</a></h1>
+<p>GUI Server provides user interface for monitoring and controlling
+Hat system functionality in real time. It provides multi-user environment
+with authentication and authorization control of available resources.</p>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
+<p>By installing GUI Server from <cite>hat-gui</cite> package, executable <cite>hat-gui</cite>
+becomes available and can be used for starting this component.</p>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Traceback (most recent call last):
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 193, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File &quot;/opt/hostedtoolcache/Python/3.8.2/x64/lib/python3.8/runpy.py&quot;, line 86, in _run_code
+    exec(code, run_globals)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/gui/__main__.py&quot;, line 3, in &lt;module&gt;
+    from hat.gui.main import main
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/gui/main.py&quot;, line 13, in &lt;module&gt;
+    from hat.gui import common
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/gui/common.py&quot;, line 6, in &lt;module&gt;
+    import hat.monitor.common
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/monitor/common.py&quot;, line 5, in &lt;module&gt;
+    from hat import chatter
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/chatter.py&quot;, line 31, in &lt;module&gt;
+    sbs_repo = sbs.Repository.from_json(Path(__file__).parent /
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/sbs/repository.py&quot;, line 86, in from_json
+    data = json.decode_file(data)
+  File &quot;/home/runner/work/hat-core/hat-core/src_py/hat/util/json.py&quot;, line 187, in decode_file
+    with open(path, &#39;r&#39;, encoding=&#39;utf-8&#39;) as f:
+FileNotFoundError: [Errno 2] No such file or directory: &#39;/home/runner/work/hat-core/hat-core/src_py/hat/chatter_sbs_repo.json&#39;
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>GUI functionality can be defined according to following components:</p>
+<p class="plantuml">
+<img src="../../_images/plantuml-dfb0b90b79f006fc76a5d2c5145f3fdd2e2f1b5f.png" alt="folder &quot;Event Server&quot; as EventServer
+
+folder &quot;GUI Backend&quot; {
+    component &quot;Event Client&quot; as EventClient
+
+    component Server
+    component Session &lt;&lt;Session&gt;&gt; as Session
+
+    component Adapter &lt;&lt;Adapter&gt;&gt; as Adapter
+    component &quot;Adapter Event Client&quot; &lt;&lt;AdapterEventClient&gt;&gt; as AdapterEventClient
+    component &quot;Adapter Session Client&quot; &lt;&lt;AdapterSessionClient&gt;&gt; as AdapterSessionClient
+    component &quot;Adapter Session&quot; &lt;&lt;AdapterSession&gt;&gt; as AdapterSession
+
+    component &quot;View Manager&quot; as ViewManager
+}
+
+folder &quot;GUI Frontend&quot; {
+    component Client
+    component View
+}
+
+folder &quot;File system&quot; {
+    component &quot;View Dir&quot; as ViewDir
+}
+
+EventServer &lt;-&gt; EventClient
+
+Server o-- Session
+
+Session &lt;-&gt; Client
+
+Session o-- AdapterSession
+
+Adapter ..&gt; AdapterSession : create
+
+AdapterSession &lt;-&gt; AdapterSessionClient
+
+Session o- AdapterSessionClient
+
+EventClient &lt;--&gt; AdapterEventClient
+
+AdapterEventClient &lt;-&gt; Adapter
+
+Server -&gt; ViewManager
+
+ViewManager .&gt; ViewDir : get
+
+Session .&gt; View : send"/>
+</p>
+<p>Functionality is dependent on active connection to Event Server. Adapters,
+Server and View Manager are created when connection with Event Server is
+established and destroyed if this connection is closed. If connection with
+Event Server is closed, GUI will repeatedly try to establish new connection
+with currently active Event Server. If connection to Monitor Server could not
+be established or is closed, GUI terminates its process execution.</p>
+</div>
+<div class="section" id="backend-frontend-communication">
+<h2>Backend - frontend communication<a class="headerlink" href="#backend-frontend-communication" title="Permalink to this headline">¶</a></h2>
+<p>Communication between backend and frontend is based on juggler protocol.
+Each connection between server and client (<cite>Session</cite>) has got unique local
+data. Structure of local data on both client and server side is defined
+by JSON schema:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+<span class="n">description</span><span class="p">:</span> <span class="o">|</span>
+    <span class="n">keys</span> <span class="n">represent</span> <span class="n">adapter</span> <span class="n">names</span>
+<span class="n">patternProperties</span><span class="p">:</span>
+    <span class="s2">&quot;.+&quot;</span><span class="p">:</span>
+        <span class="n">description</span><span class="p">:</span> <span class="o">|</span>
+            <span class="n">structure</span> <span class="n">of</span> <span class="n">adapter</span><span class="s1">&#39;s local/remote data is defined by</span>
+            <span class="n">adapter</span> <span class="nb">type</span>
+</pre></div>
+</div>
+<p>Supported juggler <cite>MESSAGE</cite> messages sent from client to server are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">definitions</span><span class="p">:</span>
+    <span class="n">login</span><span class="p">:</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+        <span class="n">required</span><span class="p">:</span>
+            <span class="o">-</span> <span class="nb">type</span>
+            <span class="o">-</span> <span class="n">name</span>
+            <span class="o">-</span> <span class="n">password</span>
+        <span class="n">properties</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">:</span>
+                <span class="n">enum</span><span class="p">:</span>
+                    <span class="o">-</span> <span class="n">login</span>
+            <span class="n">name</span><span class="p">:</span>
+                <span class="nb">type</span><span class="p">:</span> <span class="n">string</span>
+            <span class="n">password</span><span class="p">:</span>
+                <span class="nb">type</span><span class="p">:</span> <span class="n">string</span>
+                <span class="n">description</span><span class="p">:</span> <span class="o">|</span>
+                    <span class="n">this</span> <span class="nb">property</span> <span class="n">contains</span> <span class="n">SHA</span><span class="o">-</span><span class="mi">256</span> <span class="n">password</span>
+                    <span class="nb">hash</span> <span class="n">encoded</span> <span class="k">as</span> <span class="nb">hex</span> <span class="n">string</span>
+    <span class="n">logout</span><span class="p">:</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+        <span class="n">required</span><span class="p">:</span>
+            <span class="o">-</span> <span class="nb">type</span>
+        <span class="n">properties</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">:</span>
+                <span class="n">enum</span><span class="p">:</span>
+                    <span class="o">-</span> <span class="n">logout</span>
+    <span class="n">adapter</span><span class="p">:</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+        <span class="n">required</span><span class="p">:</span>
+            <span class="o">-</span> <span class="nb">type</span>
+            <span class="o">-</span> <span class="n">name</span>
+            <span class="o">-</span> <span class="n">data</span>
+        <span class="n">properties</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">:</span>
+                <span class="n">enum</span><span class="p">:</span>
+                    <span class="o">-</span> <span class="n">adapter</span>
+            <span class="n">name</span><span class="p">:</span>
+                <span class="nb">type</span><span class="p">:</span> <span class="n">string</span>
+                <span class="n">description</span><span class="p">:</span> <span class="n">adapter</span> <span class="n">instance</span> <span class="n">name</span>
+            <span class="n">data</span><span class="p">:</span>
+                <span class="n">description</span><span class="p">:</span> <span class="o">|</span>
+                    <span class="n">structure</span> <span class="n">of</span> <span class="n">this</span> <span class="nb">property</span> <span class="ow">is</span> <span class="n">defined</span> <span class="n">by</span>
+                    <span class="n">adapter</span> <span class="nb">type</span>
+</pre></div>
+</div>
+<p>Supported juggler <cite>MESSAGE</cite> messages sent from server to client are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">definitions</span><span class="p">:</span>
+    <span class="n">state</span><span class="p">:</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+        <span class="n">required</span><span class="p">:</span>
+            <span class="o">-</span> <span class="nb">type</span>
+            <span class="o">-</span> <span class="n">user</span>
+            <span class="o">-</span> <span class="n">view</span>
+            <span class="o">-</span> <span class="n">conf</span>
+        <span class="n">properties</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">:</span>
+                <span class="n">enum</span><span class="p">:</span>
+                    <span class="o">-</span> <span class="n">state</span>
+            <span class="n">user</span><span class="p">:</span>
+                <span class="nb">type</span><span class="p">:</span>
+                    <span class="o">-</span> <span class="n">string</span>
+                    <span class="o">-</span> <span class="s2">&quot;null&quot;</span>
+                <span class="n">description</span><span class="p">:</span> <span class="o">|</span>
+                    <span class="n">null</span> <span class="n">represents</span> <span class="n">unsuccessful</span> <span class="n">authentication</span>
+            <span class="n">view</span><span class="p">:</span>
+                <span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+    <span class="n">adapter</span><span class="p">:</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">object</span>
+        <span class="n">required</span><span class="p">:</span>
+            <span class="o">-</span> <span class="nb">type</span>
+            <span class="o">-</span> <span class="n">name</span>
+            <span class="o">-</span> <span class="n">data</span>
+        <span class="n">properties</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">:</span>
+                <span class="n">enum</span><span class="p">:</span>
+                    <span class="o">-</span> <span class="n">adapter</span>
+            <span class="n">name</span><span class="p">:</span>
+                <span class="nb">type</span><span class="p">:</span> <span class="n">string</span>
+                <span class="n">description</span><span class="p">:</span> <span class="n">adapter</span> <span class="n">instance</span> <span class="n">name</span>
+            <span class="n">data</span><span class="p">:</span>
+                <span class="n">description</span><span class="p">:</span> <span class="o">|</span>
+                    <span class="n">structure</span> <span class="n">of</span> <span class="n">this</span> <span class="nb">property</span> <span class="ow">is</span> <span class="n">defined</span> <span class="n">by</span>
+                    <span class="n">adapter</span> <span class="nb">type</span>
+</pre></div>
+</div>
+<p>When client establishes new juggler connection with server, initial local
+data on server side is <code class="docutils literal notranslate"><span class="pre">null</span></code>. Immediately after connection is established,
+server sends <cite>state</cite> message with <cite>user</cite> <code class="docutils literal notranslate"><span class="pre">null</span></code> and initial view.
+At any time, client can send <cite>login</cite> or <cite>logout</cite> message. Once server receives
+<code class="docutils literal notranslate"><span class="pre">login</span></code> or <code class="docutils literal notranslate"><span class="pre">logout</span></code> message, it should respond with appropriate <code class="docutils literal notranslate"><span class="pre">state</span></code>
+message.</p>
+<p>When client successfully authenticates, server will create new <cite>Session</cite>
+instance which is responsible for further communication with client. Initial
+<cite>state</cite> message delivered to client will contain <cite>view</cite> data and configuration.
+Session continuously updates server’s local data according to
+AdapterSessionClient’s local data. It is also responsible for creating adapter
+session and bidirectional forwarding of <cite>adapter</cite> messages between frontend
+client and adapter client.</p>
+</div>
+<div class="section" id="adapters">
+<h2>Adapters<a class="headerlink" href="#adapters" title="Permalink to this headline">¶</a></h2>
+<p>Adapters are mutually independent providers of server-side functionality and
+data exposed to GUI frontends. For providing this functionality and data,
+adapters rely primarily on their internal state and communication with Event
+Server. Adapter definitions are dynamically loaded during GUI server startup
+procedure.</p>
+<p>GUI server can be configured to initialize arbitrary number of adapter
+instances with their custom configurations which will be validated with
+associdated adapter’s optional JSON schema. During adapter instance
+initialization, each adapter instance is provided with instance of
+AdapterEventClient. AdapterEventClient provides proxy interface to active
+Event client connection which enables communication with Event Server
+in accordance with adapter’s event type subscription.</p>
+<p>Adapter is responsible for creating new instances of AdapterSessions
+associated with backend-frontend communication session. During initialization
+of AdapterSession, adapter is provided with appropriate instance of
+AdapterSessionClient which can be used by Adapter or AdapterSession for
+communication with individual GUI frontends. AdapterSessionClient enables
+full juggler communication (exchange of local/remote state and asynchronous
+message communication) appropriate for associated AdapterSession.</p>
+<p>Implementation of single adapter is usually split between Adapter
+implementation and AdapterSession implementation where Adapter encapsulates
+shared data and AdapterSession encapsulates custom data and functionality
+specific for each Session instance. Additionally, each AdapterSession is
+responsible for enforcing fine grained authorization rules in accordance to
+user authenticated with associated AdapterSessionClient.</p>
+<p>Adapters available as part of <cite>hat-gui</cite> package:</p>
+<blockquote>
+<div><div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adapters/dummy.html">Dummy adapter</a></li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="views">
+<h2>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h2>
+<p>Views are collection of JavaScript code and other frontend resources
+responsible for graphical representation of adapters state and interaction
+with user. Each view is represented with content of file system directory.</p>
+<p><cite>ViewManager</cite> is server side component which is used for loading view’s
+resources. Each file inside view’s directory (or subdirectory) is identified
+with unix file path relative to view’s directory. Each file is read from
+file system and encoded as string based on file extension:</p>
+<blockquote>
+<div><ul>
+<li><p><cite>.js</cite>, <cite>.css</cite>, <cite>.txt</cite></p>
+<blockquote>
+<div><p>files are read and encoded as <cite>utf-8</cite> encoded strings</p>
+</div></blockquote>
+</li>
+<li><p><cite>.json</cite>, <cite>.yaml</cite>, <cite>.yml</cite></p>
+<blockquote>
+<div><p>files are read as json or yaml files and encoded as <cite>utf-8</cite> json data
+representation</p>
+</div></blockquote>
+</li>
+<li><p><cite>.svg</cite>, <cite>.xml</cite></p>
+<blockquote>
+<div><p>files are read as xml data and encoded as <cite>utf-8</cite> json data
+representing equivalent virtual tree</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>better definition of transformation between xml and virtual
+tree data</p>
+</div>
+</div></blockquote>
+</li>
+<li><p>all other files</p>
+<blockquote>
+<div><p>files are read as binary data and encoded as <cite>base64</cite> strings</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Server chooses client’s view depending on authenticated user and configuration
+of first role associated with user. This view’s resources and configuration
+is obtained from <cite>ViewManager</cite>. Responsibility of <cite>ViewManager</cite> is to provide
+current view’s data and configuration as available on file system in the
+moment when server issued request for these resources. If view directory
+contains <cite>schema.{yaml|yml|json}</cite>, it is used as JSON schema for validating
+view’s configuration.</p>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>future improvements:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>zip archives as view bundles</p></li>
+<li><p>‘smart’ ViewManager with watching view directory and conf for changes
+and preloading resources on change</p></li>
+</ul>
+</div></blockquote>
+</div>
+<p>Once client receives new <cite>state</cite> message, it will evaluate JavaScript code from
+view’s <cite>index.js</cite>. This code is evaluated inside environment which contains
+global constant <code class="docutils literal notranslate"><span class="pre">hat</span></code>. When evaluation is finished, environment should
+contain global values <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">vt</span></code> and <code class="docutils literal notranslate"><span class="pre">destroy</span></code>.</p>
+<p>Client bounds juggler connection’s local data to default renderer’s
+<code class="docutils literal notranslate"><span class="pre">['local']</span></code> path and remote data to default renderer’s <code class="docutils literal notranslate"><span class="pre">['remote']</span></code> path.
+Constant <code class="docutils literal notranslate"><span class="pre">hat</span></code>, available during execution of <cite>index.js</cite>, references object
+with properties:</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">conf</span></code></p>
+<blockquote>
+<div><p>view’s configuration</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">user</span></code></p>
+<blockquote>
+<div><p>authenticated user identifier</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">view</span></code></p>
+<blockquote>
+<div><p>view’s data</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conn</span></code></p>
+<blockquote>
+<div><p>object representing connection with server with properties:</p>
+<blockquote>
+<div><ul>
+<li><p><cite>onMessage</cite></p>
+<blockquote>
+<div><p>property which references function called each time new
+<cite>adapter</cite> message is received (callback receives arguments
+<cite>adapter</cite> and <cite>msg</cite> which reference content of <cite>adapter</cite>
+message)</p>
+</div></blockquote>
+</li>
+<li><p><cite>login(name, password)</cite></p>
+<blockquote>
+<div><p>login method</p>
+</div></blockquote>
+</li>
+<li><p><cite>logout()</cite></p>
+<blockquote>
+<div><p>logout method</p>
+</div></blockquote>
+</li>
+<li><p><cite>send(adapter, msg)</cite></p>
+<blockquote>
+<div><p>method for sending <cite>adapter</cite> messages</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>When evaluation finishes, environment should contain:</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">init</span></code></p>
+<blockquote>
+<div><p>optional initialization function which is called immediately after
+evaluation of <cite>index.js</cite> finishes (this function has no input arguments
+and its return value is ignored)</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vt</span></code></p>
+<blockquote>
+<div><p>function called each time global renderer’s state changes (this
+function has no input arguments and it should return virtual tree data)</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">destroy</span></code></p>
+<blockquote>
+<div><p>optional function called prior to evaluation of other view’s <cite>index.js</cite>
+(this function has no input arguments and its return value is ignored)</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Views available as part of <cite>hat-gui</cite> package:</p>
+<blockquote>
+<div><div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="views/dummy.html">Dummy view</a></li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="module-hat.gui.view">
+<span id="python-implementation"></span><h2>Python implementation<a class="headerlink" href="#module-hat.gui.view" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="hat.gui.view.View">
+<em class="property">class </em><code class="sig-prename descclassname">hat.gui.view.</code><code class="sig-name descname">View</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">conf</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.gui.view.View" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of View(name, conf, data)</p>
+<dl class="py attribute">
+<dt id="hat.gui.view.View.conf">
+<code class="sig-name descname">conf</code><a class="headerlink" href="#hat.gui.view.View.conf" title="Permalink to this definition">¶</a></dt>
+<dd><p>json.Data</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.gui.view.View.data">
+<code class="sig-name descname">data</code><a class="headerlink" href="#hat.gui.view.View.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict[str,json.Data]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hat.gui.view.View.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#hat.gui.view.View.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="hat.gui.view.create_view_manager">
+<em class="property">async </em><code class="sig-prename descclassname">hat.gui.view.</code><code class="sig-name descname">create_view_manager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf</span></em>, <em class="sig-param"><span class="n">json_schema_repo</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.gui.view.create_view_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Create view manager</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conf</strong> (<em>json.Data</em>) – configuration defined by
+<code class="docutils literal notranslate"><span class="pre">hat://gui/main.yaml#/definitions/views</span></code></p></li>
+<li><p><strong>json_schema_repo</strong> (<a class="reference internal" href="../../libraries/util.html#hat.util.json.SchemaRepository" title="hat.util.json.SchemaRepository"><em>json.SchemaRepository</em></a>) – json schema repository
+used for view configuration validation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ViewManager</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hat.gui.view.ViewManager">
+<em class="property">class </em><code class="sig-prename descclassname">hat.gui.view.</code><code class="sig-name descname">ViewManager</code><a class="headerlink" href="#hat.gui.view.ViewManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>View manager</p>
+<dl class="py method">
+<dt id="hat.gui.view.ViewManager.closed">
+<em class="property">property </em><code class="sig-name descname">closed</code><a class="headerlink" href="#hat.gui.view.ViewManager.closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>closed future</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>asyncio.Future</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.gui.view.ViewManager.async_close">
+<em class="property">async </em><code class="sig-name descname">async_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hat.gui.view.ViewManager.async_close" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Async close</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hat.gui.view.ViewManager.get">
+<em class="property">async </em><code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.gui.view.ViewManager.get" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>COROUTINE</strong>
+Get view</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – view name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>View</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-hat.gui.vt"></span><p>Virtual tree XML parser</p>
+<dl class="py function">
+<dt id="hat.gui.vt.parse">
+<code class="sig-prename descclassname">hat.gui.vt.</code><code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hat.gui.vt.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse XML document into virtual tree</p>
+<p>Each element is recursively parsed into a list with the following
+structure, starting from the root of a document:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>First item is a valid CSS selector string, consisting of element tag
+name; and optionally <cite>id</cite> and <cite>class</cite> attributes if present.</p></li>
+<li><p>If the element has attributes other than <cite>id</cite> or <cite>class</cite>, they are
+stored as a second item. The item is a dictionary which has an
+<cite>attrs</cite> key, whose value is another dictionary, with key-value pairs
+representing attribute names and their values, respectively.</p></li>
+<li><p>All other items are element content. Each item is either a
+recursively parsed element child (a list), or text (a string).</p></li>
+</ul>
+</div></blockquote>
+<p>Resulting structure is JSON serializable.</p>
+<p>Namespace prefix declaration attributes (<cite>xmlns:*</cite>) are ignored.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">hat.gui.vt</span>
+
+<span class="n">xml</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">    &lt;html&gt;</span>
+<span class="s1">        &lt;body&gt;</span>
+<span class="s1">            &lt;div id=&quot;first&quot; class=&quot;c1 c2&quot;&gt;</span>
+<span class="s1">                Banana</span>
+<span class="s1">            &lt;/div&gt;</span>
+<span class="s1">            Orange</span>
+<span class="s1">            &lt;br/&gt;</span>
+<span class="s1">            &lt;span id=&quot;second&quot; style=&quot;color:green&quot;&gt;</span>
+<span class="s1">                Watermelon</span>
+<span class="s1">            &lt;/span&gt;</span>
+<span class="s1">        &lt;/body&gt;</span>
+<span class="s1">    &lt;/html&gt;</span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="n">stripped</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">xml</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
+<span class="n">stream</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span>
+<span class="n">parsed</span> <span class="o">=</span> <span class="n">hat</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">vt</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;html&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s1">&#39;div#first.c1.c2&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;Banana&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;Orange&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s1">&#39;br&#39;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s1">&#39;span#second&#39;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s1">&#39;attrs&#39;</span><span class="p">:</span>
+                <span class="p">{</span><span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="s2">&quot;color:green&quot;</span><span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Watermelon&quot;</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> – file stream</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>json serializable virtual tree</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hat.json.Data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../libraries/index.html">Libraries</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../translator.html">Translator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../orchestrator.html">Orchestrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../monitor.html">Monitor Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../event/index.html">Event Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gateway/index.html">Gateway</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GUI Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="adapters/dummy.html">Dummy adapter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="views/dummy.html">Dummy view</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../gateway/devices/dummy.html"
+                        title="previous chapter">Dummy device</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="adapters/dummy.html"
+                        title="next chapter">Dummy adapter</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="adapters/dummy.html" title="Dummy adapter"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../gateway/devices/dummy.html" title="Dummy device"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Components</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Chatter communication protocol &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Juggler communication protocol" href="juggler.html" />
+    <link rel="prev" title="Simple binary serialization" href="sbs.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="juggler.html" title="Juggler communication protocol"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sbs.html" title="Simple binary serialization"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Libraries</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="chatter-communication-protocol">
+<span id="chatter"></span><h1>Chatter communication protocol<a class="headerlink" href="#chatter-communication-protocol" title="Permalink to this headline">¶</a></h1>
+<p>Hat defines a communication infrastructure used by Hat back-end components.
+This communication is based on the TCP communication protocol (with the option
+of applying an SSL layer on top of TCP) and messages encoded using SBS. The
+underlying stream is segmented into blocks. Each block contains a single
+communication message prefixed by its message header. This header consists of
+<cite>1+m</cite> bytes where the first byte contains the value <cite>m</cite> (from 0 to 255, or
+header byte length), while the <cite>m</cite> bytes value determines the number of
+following message bytes (<cite>k</cite>) encoded as big-endian (the first byte value does
+not include the first header byte and message length does not include header
+length) which contain the actual body of the message.</p>
+<p>Visualization of the communication stream:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">address</span>    <span class="o">...</span>  <span class="o">|</span>  <span class="n">n</span>  <span class="o">|</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="o">|</span>  <span class="o">...</span>  <span class="o">|</span> <span class="n">n</span><span class="o">+</span><span class="n">m</span> <span class="o">|</span> <span class="n">n</span><span class="o">+</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span> <span class="o">|</span>  <span class="o">...</span>  <span class="o">|</span> <span class="n">n</span><span class="o">+</span><span class="n">m</span><span class="o">+</span><span class="n">k</span> <span class="o">|</span>  <span class="o">...</span>
+         <span class="o">-------+-----+-----+-------+-----+-------+-------+-------+-------</span>
+   <span class="n">data</span>    <span class="o">...</span>  <span class="o">|</span>  <span class="n">m</span>  <span class="o">|</span>         <span class="n">k</span>         <span class="o">|</span>        <span class="n">message</span>        <span class="o">|</span>  <span class="o">...</span>
+         <span class="o">-------+-----+-----+-------+-----+-------+-------+-------+-------</span>
+</pre></div>
+</div>
+<p>where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>m</cite> is byte length of <cite>k</cite></p></li>
+<li><p><cite>k</cite> is byte length of <cite>message</cite> (<cite>n+1</cite> is the most significant byte)</p></li>
+<li><p><cite>message</cite> is SBS encoded message data.</p></li>
+</ul>
+</div></blockquote>
+<p>SBS data definitions are available in the directory <cite>schemas_sbs</cite> of the
+hat-open repository. The file structure of this directory mimics SBS modules
+available in <cite>.sbs</cite> definition files. The base module for all Hat
+messages is <cite>Hat</cite>. Message data definition, defined by service (see <a class="reference internal" href="#services">Services</a>),
+is available in additional modules whose names are usually prefixed with <cite>Hat</cite>.</p>
+<p>All Communication is peer-to-peer based. One peer connects to another and once
+the connection is achieved, each peer can send messages to the other peer in
+full duplex fashion. Each peer can terminate the connection if necessary. Most
+communication errors (including data serialization errors) will result in
+connection termination.</p>
+<div class="section" id="message">
+<h2>Message<a class="headerlink" href="#message" title="Permalink to this headline">¶</a></h2>
+<p>Communication message is defined by SBS <cite>Hat.Msg</cite> containing:</p>
+<ul class="simple">
+<li><p>unique message identifier (<cite>id</cite>)</p></li>
+<li><p>conversation descriptor (<cite>first</cite>, <cite>owner</cite>, <cite>token</cite>, <cite>last</cite>)</p></li>
+<li><p>message data (<cite>data</cite>) determined by type identifier (<cite>module</cite>, ‘type’)</p></li>
+</ul>
+<p>Message identifier is a number which uniquely identifies a peer’s message. When
+a new connection is established, each peer bounds a counter to the connection.
+Upon sending a new message, this counter is incremented and used as the new
+message’s identifier.</p>
+<p>Conversation descriptor consists of a set of parameters which bind the message
+to a specific conversation (see <a class="reference internal" href="#conversation">Conversation</a>).</p>
+<p>Message data consists of bytes that represent SBS encoded data with additional
+SBS module and SBS type identifiers.</p>
+<p>SBS message schema:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">Hat</span>
+
+<span class="n">Msg</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="nb">id</span><span class="p">:</span>     <span class="n">Integer</span>
+    <span class="n">first</span><span class="p">:</span>  <span class="n">Integer</span>
+    <span class="n">owner</span><span class="p">:</span>  <span class="n">Boolean</span>
+    <span class="n">token</span><span class="p">:</span>  <span class="n">Boolean</span>
+    <span class="n">last</span><span class="p">:</span>   <span class="n">Boolean</span>
+    <span class="n">data</span><span class="p">:</span>   <span class="n">Data</span>
+<span class="p">}</span>
+
+<span class="n">Data</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">module</span><span class="p">:</span>  <span class="n">Maybe</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+    <span class="nb">type</span><span class="p">:</span>    <span class="n">String</span>
+    <span class="n">data</span><span class="p">:</span>    <span class="n">Bytes</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="conversation">
+<span id="protocol-conversation"></span><h2>Conversation<a class="headerlink" href="#conversation" title="Permalink to this headline">¶</a></h2>
+<p>A Conversation is defined as an ordered finite sequence of messages.
+Conversations are used for short ordered exchange of messages between two
+peers. Each peer can start a new conversation and finalize an existing
+conversation. Multiple simultaneously active conversations can be bound to
+a single active connection. A basic example for conversation usage is a
+request-response message exchange between peers, implementing operation
+timeouts.</p>
+<p>Each message contains its conversation descriptor which contains:</p>
+<ul class="simple">
+<li><p>conversation’s first message identifier (<cite>first</cite>)</p></li>
+<li><p>owner flag (<cite>owner</cite>)</p></li>
+<li><p>token passing flag (<cite>token</cite>)</p></li>
+<li><p>last message flag (<cite>last</cite>)</p></li>
+</ul>
+<p>A Conversation’s first message identifier contains the message identifier of
+the message which started the conversation. If this identifier is equal to
+the current message’s identifier, the message is the first message in
+the conversation.</p>
+<p>The peer who initiates a conversation (sends the first message in the
+conversation) is considered to be the conversation’s owner. A message’s
+owner flag (<cite>owner</cite>) is set to <code class="docutils literal notranslate"><span class="pre">true</span></code> only if the peer sending the message is
+also the conversation’s owner.</p>
+<p>The token passing flag (<cite>token</cite>) is set to <code class="docutils literal notranslate"><span class="pre">true</span></code> if this message is the last
+message this peer will send prior to expecting messages (bound to the current
+conversation) from the other peer. This behavior is an implementation of the
+token passing mechanism. Initially, the token is given to the peer who
+initiates the conversation. This peer can pass the token to the other peer by
+setting the token passing flag (<cite>token</cite>) to <code class="docutils literal notranslate"><span class="pre">true</span></code>. Only the peer currently
+holding the token can send messages bound the conversation.</p>
+<p>The last message flag (<cite>last</cite>) is set to <code class="docutils literal notranslate"><span class="pre">true</span></code> only if the message is the
+last message in the current conversation. Once this message is sent, the
+conversation can not be used to send new messages. When the last flag (<cite>last</cite>)
+is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, the value of the token passing flag is ignored.</p>
+<p>Each conversation is uniquely identified by its first message identifier and
+owner flag.</p>
+</div>
+<div class="section" id="addressing">
+<h2>Addressing<a class="headerlink" href="#addressing" title="Permalink to this headline">¶</a></h2>
+<p>All end-points using Chatter are uniquely identified by a string
+identifier based on URI definition (RFC 3986). This identifier is formatted as
+<code class="docutils literal notranslate"><span class="pre">&lt;scheme&gt;://&lt;host&gt;:&lt;port&gt;</span></code> where</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>&lt;scheme&gt;</cite> - one of <code class="docutils literal notranslate"><span class="pre">tcp+sbs</span></code>, <code class="docutils literal notranslate"><span class="pre">ssl+sbs</span></code></p></li>
+<li><p><cite>&lt;host&gt;</cite> - remote host’s name</p></li>
+<li><p><cite>&lt;port&gt;</cite> - remote tcp port</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="services">
+<h2>Services<a class="headerlink" href="#services" title="Permalink to this headline">¶</a></h2>
+<p>A Service is a self contained set of functionalities bound to a connection.
+Each connection can have multiple associated Services. Each Service has a
+predefined set of message type identifiers available for custom message
+definition. These message types are defined in the Service’s appropriate SBS
+definition file in the <cite>schemas_sbs</cite> directory.</p>
+<div class="section" id="ping">
+<span id="ping-service"></span><h3>Ping<a class="headerlink" href="#ping" title="Permalink to this headline">¶</a></h3>
+<p>The Ping communication Service is responsible for detecting a closed
+connection. This Service periodically sends a Ping request and waits for a
+corresponding Pong response. If the response isn’t received in a defined
+timeout period (if the Conversation’s timeout is exceeded), the connection is
+closed.</p>
+<p>This is a peer-to-peer Service (there is no distinction between client and
+server).</p>
+<p>The default ping timeout is 30 seconds.</p>
+<p>The default conversation timeout period is 5 seconds.</p>
+<p>The Ping Service is implemented as an integrated part of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">hat.protocol.Connection</span></code>.</p>
+<p>A Ping - Pong Conversation between peers contains these messages:</p>
+<blockquote>
+<div><table class="docutils align-default">
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 16%" />
+<col style="width: 14%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" rowspan="2"><p>Message</p></th>
+<th class="head" colspan="2"><p>Conversation</p></th>
+<th class="head" rowspan="2"><p>Direction</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>First</p></th>
+<th class="head"><p>Last</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p>ping</p></td>
+<td><p>T</p></td>
+<td><p>F</p></td>
+<td><p>p1 &gt; p2</p></td>
+</tr>
+<tr class="row-even"><td><p>pong</p></td>
+<td><p>F</p></td>
+<td><p>T</p></td>
+<td><p>p2 &gt; p1</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>where ‘p1’ and ‘p2’ are two communicating peers.</p>
+<p>SBS schema:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">HatPing</span>
+
+<span class="n">MsgPing</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">MsgPong</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="python-implementation">
+<h2>Python implementation<a class="headerlink" href="#python-implementation" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Libraries</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="util.html">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="peg.html">Parsing expression grammar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbs.html">Simple binary serialization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Chatter communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="juggler.html">Juggler communication protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="duktape.html">Duktape wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drivers/index.html">Drivers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">Appendix</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sbs.html"
+                        title="previous chapter">Simple binary serialization</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="juggler.html"
+                        title="next chapter">Juggler communication protocol</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="juggler.html" title="Juggler communication protocol"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sbs.html" title="Simple binary serialization"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Libraries</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>

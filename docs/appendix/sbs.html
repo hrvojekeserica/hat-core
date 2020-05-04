@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SBS Schema definitions &#8212; Hat Core Documentation  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="JSON Schema definitions" href="json.html" />
+    <link rel="prev" title="Event definitions" href="events.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="json.html" title="JSON Schema definitions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="events.html" title="Event definitions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Appendix</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sbs-schema-definitions">
+<h1>SBS Schema definitions<a class="headerlink" href="#sbs-schema-definitions" title="Permalink to this headline">¶</a></h1>
+<dl>
+<dt>hat.sbs</dt><dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">Hat</span>
+
+<span class="n">Msg</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="nb">id</span><span class="p">:</span>     <span class="n">Integer</span>
+    <span class="n">first</span><span class="p">:</span>  <span class="n">Integer</span>
+    <span class="n">owner</span><span class="p">:</span>  <span class="n">Boolean</span>
+    <span class="n">token</span><span class="p">:</span>  <span class="n">Boolean</span>
+    <span class="n">last</span><span class="p">:</span>   <span class="n">Boolean</span>
+    <span class="n">data</span><span class="p">:</span>   <span class="n">Data</span>
+<span class="p">}</span>
+
+<span class="n">Data</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">module</span><span class="p">:</span>  <span class="n">Maybe</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+    <span class="nb">type</span><span class="p">:</span>    <span class="n">String</span>
+    <span class="n">data</span><span class="p">:</span>    <span class="n">Bytes</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+<dt>hat/event.sbs</dt><dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">HatEvent</span>
+
+<span class="n">MsgSubscribe</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">EventType</span><span class="p">)</span>
+
+<span class="n">MsgNotify</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">Event</span><span class="p">)</span>
+
+<span class="n">MsgRegisterReq</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">RegisterEvent</span><span class="p">)</span>
+
+<span class="n">MsgRegisterRes</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">Union</span> <span class="p">{</span>
+    <span class="n">event</span><span class="p">:</span>    <span class="n">Event</span>
+    <span class="n">failure</span><span class="p">:</span>  <span class="kc">None</span>
+<span class="p">})</span>
+
+<span class="n">MsgQueryReq</span> <span class="o">=</span> <span class="n">QueryData</span>
+
+<span class="n">MsgQueryRes</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">Event</span><span class="p">)</span>
+
+<span class="n">Timestamp</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">s</span><span class="p">:</span>   <span class="n">Integer</span>
+    <span class="n">us</span><span class="p">:</span>  <span class="n">Integer</span>
+<span class="p">}</span>
+
+<span class="n">EventId</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">server</span><span class="p">:</span>    <span class="n">Integer</span>
+    <span class="n">instance</span><span class="p">:</span>  <span class="n">Integer</span>
+<span class="p">}</span>
+
+<span class="n">Order</span> <span class="o">=</span> <span class="n">Union</span> <span class="p">{</span>
+    <span class="n">descending</span><span class="p">:</span>  <span class="kc">None</span>
+    <span class="n">ascending</span><span class="p">:</span>   <span class="kc">None</span>
+<span class="p">}</span>
+
+<span class="n">OrderBy</span> <span class="o">=</span> <span class="n">Union</span> <span class="p">{</span>
+    <span class="n">timestamp</span><span class="p">:</span>        <span class="kc">None</span>
+    <span class="n">sourceTimestamp</span><span class="p">:</span>  <span class="kc">None</span>
+<span class="p">}</span>
+
+<span class="n">EventType</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+
+<span class="n">EventPayload</span> <span class="o">=</span> <span class="n">Union</span> <span class="p">{</span>
+    <span class="n">binary</span><span class="p">:</span>  <span class="n">Bytes</span>
+    <span class="n">json</span><span class="p">:</span>    <span class="n">String</span>
+    <span class="n">sbs</span><span class="p">:</span>     <span class="n">Hat</span><span class="o">.</span><span class="n">Data</span>
+<span class="p">}</span>
+
+<span class="n">Event</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="nb">id</span><span class="p">:</span>               <span class="n">EventId</span>
+    <span class="nb">type</span><span class="p">:</span>             <span class="n">EventType</span>
+    <span class="n">timestamp</span><span class="p">:</span>        <span class="n">Timestamp</span>
+    <span class="n">sourceTimestamp</span><span class="p">:</span>  <span class="n">Maybe</span><span class="p">(</span><span class="n">Timestamp</span><span class="p">)</span>
+    <span class="n">payload</span><span class="p">:</span>          <span class="n">Maybe</span><span class="p">(</span><span class="n">EventPayload</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">RegisterEvent</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="nb">type</span><span class="p">:</span>             <span class="n">EventType</span>
+    <span class="n">sourceTimestamp</span><span class="p">:</span>  <span class="n">Maybe</span><span class="p">(</span><span class="n">Timestamp</span><span class="p">)</span>
+    <span class="n">payload</span><span class="p">:</span>          <span class="n">Maybe</span><span class="p">(</span><span class="n">EventPayload</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">QueryData</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">ids</span><span class="p">:</span>                <span class="n">Maybe</span><span class="p">(</span><span class="n">Array</span><span class="p">(</span><span class="n">EventId</span><span class="p">))</span>
+    <span class="n">types</span><span class="p">:</span>              <span class="n">Maybe</span><span class="p">(</span><span class="n">Array</span><span class="p">(</span><span class="n">EventType</span><span class="p">))</span>
+    <span class="n">tFrom</span><span class="p">:</span>              <span class="n">Maybe</span><span class="p">(</span><span class="n">Timestamp</span><span class="p">)</span>
+    <span class="n">tTo</span><span class="p">:</span>                <span class="n">Maybe</span><span class="p">(</span><span class="n">Timestamp</span><span class="p">)</span>
+    <span class="n">sourceTFrom</span><span class="p">:</span>        <span class="n">Maybe</span><span class="p">(</span><span class="n">Timestamp</span><span class="p">)</span>
+    <span class="n">sourceTTo</span><span class="p">:</span>          <span class="n">Maybe</span><span class="p">(</span><span class="n">Timestamp</span><span class="p">)</span>
+    <span class="n">payload</span><span class="p">:</span>            <span class="n">Maybe</span><span class="p">(</span><span class="n">EventPayload</span><span class="p">)</span>
+    <span class="n">order</span><span class="p">:</span>              <span class="n">Order</span>
+    <span class="n">orderBy</span><span class="p">:</span>            <span class="n">OrderBy</span>
+    <span class="n">uniqueType</span><span class="p">:</span>         <span class="n">Boolean</span>
+    <span class="n">maxResults</span><span class="p">:</span>         <span class="n">Maybe</span><span class="p">(</span><span class="n">Integer</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+<dt>hat/monitor.sbs</dt><dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">HatMonitor</span>
+
+<span class="n">MsgClient</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span>       <span class="n">String</span>
+    <span class="n">group</span><span class="p">:</span>      <span class="n">String</span>
+    <span class="n">address</span><span class="p">:</span>    <span class="n">Maybe</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+    <span class="n">ready</span><span class="p">:</span>      <span class="n">Maybe</span><span class="p">(</span><span class="n">Integer</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">MsgServer</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">cid</span><span class="p">:</span>        <span class="n">Integer</span>
+    <span class="n">mid</span><span class="p">:</span>        <span class="n">Integer</span>
+    <span class="n">components</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="n">ComponentInfo</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">MsgSlave</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">components</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="n">ComponentInfo</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">MsgMaster</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">mid</span><span class="p">:</span>        <span class="n">Integer</span>
+    <span class="n">components</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="n">ComponentInfo</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">MsgSetRank</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">cid</span><span class="p">:</span>        <span class="n">Integer</span>
+    <span class="n">mid</span><span class="p">:</span>        <span class="n">Integer</span>
+    <span class="n">rank</span><span class="p">:</span>       <span class="n">Integer</span>
+<span class="p">}</span>
+
+<span class="n">ComponentInfo</span> <span class="o">=</span> <span class="n">Tuple</span> <span class="p">{</span>
+    <span class="n">cid</span><span class="p">:</span>        <span class="n">Integer</span>
+    <span class="n">mid</span><span class="p">:</span>        <span class="n">Integer</span>
+    <span class="n">name</span><span class="p">:</span>       <span class="n">String</span>
+    <span class="n">group</span><span class="p">:</span>      <span class="n">String</span>
+    <span class="n">address</span><span class="p">:</span>    <span class="n">Maybe</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+    <span class="n">rank</span><span class="p">:</span>       <span class="n">Integer</span>
+    <span class="n">blessing</span><span class="p">:</span>   <span class="n">Maybe</span><span class="p">(</span><span class="n">Integer</span><span class="p">)</span>
+    <span class="n">ready</span><span class="p">:</span>      <span class="n">Maybe</span><span class="p">(</span><span class="n">Integer</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+<dt>hat/ping.sbs</dt><dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">HatPing</span>
+
+<span class="n">MsgPing</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">MsgPong</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../libraries/index.html">Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Appendix</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ports.html">Default TCP ports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Event definitions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SBS Schema definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json.html">JSON Schema definitions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="events.html"
+                        title="previous chapter">Event definitions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="json.html"
+                        title="next chapter">JSON Schema definitions</a></p>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="json.html" title="JSON Schema definitions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="events.html" title="Event definitions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Hat Core Documentation  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Appendix</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Hat Open AUTHORS.
+    </div>
+  </body>
+</html>
